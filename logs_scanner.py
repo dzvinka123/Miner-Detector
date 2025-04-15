@@ -18,6 +18,7 @@ LOG_FILES = [os.path.expanduser(elem) for elem in log_files.split(",")]
 
 # found_miners = []
 
+
 def is_suspicious(line):
     """
     Check whether given log has any suspicious keyword.
@@ -30,7 +31,9 @@ def scan_journalctl(write_file):
     Scanning Journalctl on Linux systems.
     """
     try:
-        output = subprocess.check_output(["journalctl", "--user", "-n", "1000"], stderr=subprocess.DEVNULL)
+        output = subprocess.check_output(
+            ["journalctl", "--user", "-n", "1000"], stderr=subprocess.DEVNULL
+        )
         for line in output.decode(errors="ignore").splitlines():
             if is_suspicious(line):
                 write_file.write(f"[!] Suspicious Journalctl entry: {line}\n")
@@ -51,7 +54,9 @@ def scan_file(file_path, write_file):
                 with open(file_path, "r", errors="ignore", encoding="utf8") as file:
                     for i, line in enumerate(file, 1):
                         if is_suspicious(line):
-                            write_file.write(f"[!] Suspicious entry in {file_path}:{i}: {line.strip()}\n")
+                            write_file.write(
+                                f"[!] Suspicious entry in {file_path}:{i}: {line.strip()}\n"
+                            )
             except Exception as e:
                 print(e)
                 print(f"[!] File does not have reading access {file_path}\n")
@@ -183,7 +188,9 @@ def main():
 
         user_system_wide_scan(write_file)
     else:
-        print("System wide logs were not analyzed as current user is not root. Re-run with 'sudo'.")
+        print(
+            "System wide logs were not analyzed as current user is not root. Re-run with 'sudo'."
+        )
 
     write_file.close()
     print(f"Results are written inside: {file_name}")
