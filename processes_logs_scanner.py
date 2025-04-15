@@ -1,5 +1,6 @@
 import os
 import time
+import psutil
 import subprocess
 from sys import platform
 from os import access, R_OK
@@ -16,13 +17,27 @@ MINERS = miner_names.split(",") if miner_names else []
 SUSPICIOUS_KEYWORDS = suspicious_keywords.split(",") if suspicious_keywords else []
 LOG_FILES = [os.path.expanduser(elem) for elem in log_files.split(",")]
 
-# found_miners = []
 
 def is_suspicious(line):
     """
     Check whether given log has any suspicious keyword.
     """
     return any(keyword in line.lower() for keyword in SUSPICIOUS_KEYWORDS)
+
+
+def scan_processes(write_file):
+    """
+    Scanning processes for suspicious keywords.
+    """
+    print("Scanning processes...")
+    for proc in psutil.process_iter(["pid", "name"]):
+        try:
+            process_name = proc.info["name"].lower()
+            for miner in MINERS:
+                if miner not in process_name:
+                    write_file.write(f"Process: {proc.info["pid"]}, {proc.info["name"]}")
+        except (psutil.NoSuchProcess, psutil.AccessDenied):
+            pass
 
 
 def scan_journalctl(write_file):
@@ -139,6 +154,8 @@ def main():
     #             sys.exit(1)
     #         return True
     #     return False
+
+    scan_processes(write_file)
 
     if platform == "darwin":
         LOG_FILES.extend(
