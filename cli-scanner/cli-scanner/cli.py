@@ -7,8 +7,9 @@ from processes_logs_scanner import (
     user_accessible_scan,
     user_system_wide_scan,
     LOG_FILES,
-    LOG_DIRS
+    LOG_DIRS,
 )
+
 
 def ask_and_check_root():
     """
@@ -82,7 +83,9 @@ def main():
 
         user_system_wide_scan(write_file)
     else:
-        print("System wide logs were not analyzed as current user is not root. Re-run with 'sudo'.")
+        print(
+            "System wide logs were not analyzed as current user is not root. Re-run with 'sudo'."
+        )
 
     write_file.close()
     print(f"Results are written inside: {args.file_name}")
