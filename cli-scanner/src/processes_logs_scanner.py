@@ -1,5 +1,5 @@
 import os
-import re
+import time
 import psutil
 import subprocess
 
@@ -61,11 +61,11 @@ def scan_journalctl(write_file):
         write_file.write("\n")
 
 
-def scan_file(file_path, write_file, time="24h"):
+def scan_file(file_path, write_file, time_thresh="24h"):
     """
     Scanning user-accessible files with cashes adn etc.
     """
-    time_threshold_seconds = parse_time_threshold(time)  # convert to seconds
+    time_threshold_seconds = parse_time_threshold(time_thresh)  # convert to seconds
     last_day = time.time() - time_threshold_seconds
     if access(file_path, R_OK):
         if os.path.getmtime(file_path) > last_day:
