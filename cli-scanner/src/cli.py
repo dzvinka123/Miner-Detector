@@ -12,19 +12,6 @@ from processes_logs_scanner import (
 )
 
 
-def ask_and_check_root():
-    """
-    To get or deny access for user.
-    """
-    response = input("System scan needs root access. Proceed? (y/n): ")
-    if response.lower() == "y":
-        if not os.geteuid() == 0:
-            print("Please re-run the script as root using 'sudo'.")
-            sys.exit(1)
-        return True
-    return False
-
-
 def main():
     """
     Starts execution, contain main logic of program.
@@ -50,10 +37,12 @@ def main():
     write_file = open(
         args.file, "a", encoding="utf8"
     )  # append (writes at the end, creates file if needed)
+
     if os.geteuid() != 0:
-        root_access = ask_and_check_root()
-    else:
-        root_access = True
+        print(
+            "System wide logs were not analyzed as current user is not root. Please re-run the script as root using 'sudo'."
+        )
+        sys.exit(1)
 
     scan_processes(write_file)
 
@@ -85,33 +74,28 @@ def main():
 
     user_accessible_scan(write_file, time=time)
 
-    if root_access:
-        if platform == "darwin":
-            LOG_DIRS.extend(
-                [
-                    os.path.expanduser("/var/log/system.log"),
-                    os.path.expanduser("/var/log/install.log"),
-                    os.path.expanduser("/tmp"),
-                    # os.path.expanduser("/Library/LaunchAgents/"),
-                    # os.path.expanduser("~/Library/LaunchDaemons/"),
-                ],
-            )
-        elif platform == "linux":
-            LOG_DIRS.extend(
-                [
-                    os.path.expanduser("/var/log/syslog"),
-                    os.path.expanduser("/tmp"),
-                    # os.path.expanduser("/var/log/messages"),
-                    # os.path.expanduser("/var/log/auth.log"),
-                    # os.path.expanduser("/var/log/kern.log"),
-                ],
-            )
-
-        user_system_wide_scan(write_file, time=time)
-    else:
-        print(
-            "System wide logs were not analyzed as current user is not root. Re-run with 'sudo'."
+    if platform == "darwin":
+        LOG_DIRS.extend(
+            [
+                os.path.expanduser("/var/log/system.log"),
+                os.path.expanduser("/var/log/install.log"),
+                os.path.expanduser("/tmp"),
+                # os.path.expanduser("/Library/LaunchAgents/"),
+                # os.path.expanduser("~/Library/LaunchDaemons/"),
+            ],
         )
+    elif platform == "linux":
+        LOG_DIRS.extend(
+            [
+                os.path.expanduser("/var/log/syslog"),
+                os.path.expanduser("/tmp"),
+                # os.path.expanduser("/var/log/messages"),
+                # os.path.expanduser("/var/log/auth.log"),
+                # os.path.expanduser("/var/log/kern.log"),
+            ],
+        )
+
+    user_system_wide_scan(write_file, time=time)
 
     write_file.close()
     print(f"Results are written inside: {args.file}")

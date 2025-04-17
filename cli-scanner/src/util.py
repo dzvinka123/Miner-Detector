@@ -1,4 +1,6 @@
 import re
+import os
+import sys
 
 
 def parse_time_threshold(time_str):
@@ -24,3 +26,16 @@ def parse_time_threshold(time_str):
     }
 
     return value * multiplier[unit]
+
+
+def ask_and_check_root():
+    """
+    To get or deny access for user.
+    """
+    response = input("System scan needs root access. Proceed? (y/n): ")
+    if response.lower() == "y":
+        if not os.geteuid() == 0:
+            print("Please re-run the script as root using 'sudo'.")
+            sys.exit(1)
+        return True
+    return False
