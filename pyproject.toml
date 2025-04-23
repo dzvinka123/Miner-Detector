@@ -1,0 +1,25 @@
+[build-system]
+requires = ["setuptools>=42", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "cli-scanner"
+version = "0.1.0"
+description = "Tool to scan system to detect potential mining activity."
+authors = [
+    {name = "Mariia Ivanchenko", email = "ivanchenko.pn@ucu.edu.ua"},
+    {name = "Khrystyna Mysak", email = "mysak.pn@ucu.edu.ua"},
+    {name = "Dzvenyslava Butynets", email = "butynets.pn@ucu.edu.ua"},
+]
+readme = "README.md"
+dependencies = [
+    "dotenv",
+    "psutil",
+    "subprocess.run"
+]
+
+[project.scripts]
+cli-scanner = "cli_scanner.scanner:main"
+
+[project.urls]
+"Homepage" = "https://github.com/dzvinka123/Miner-Detector"
