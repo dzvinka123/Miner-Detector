@@ -45,6 +45,35 @@ This repository includes a `.pre-commit-config.yaml` file to enforce consistent 
 
 ## CLI Scanner
 
+The CLI Scanner is located in the `cli_scanner/src` directory and can be run directly from the command line.
+
+### 📁 Structure
+```bash
+cli_scanner/
+├── src/
+│   ├── cli.py                  # Entry point for the CLI
+│   ├── util.py                 # Utility functions
+│   └── processes_logs_scanner.py  # Main scanning logic
+├── tests/
+│   └── ...                     # Unit tests for the CLI Scanner
+```
+
+### 🚀 How to Run
+The script accepts two optional flags:
+
+- `-d` for the directory to scan
+- `-t` for the time period to scan (e.g., 24h, 7d, etc.)
+
+```bash
+# Basic usage (outputs to results.txt)
+python3 src/cli.py results.txt
+
+# Scan a specific directory for a specific time window
+python3 src/cli.py results.txt -d /home/user -t 24h
+```
+
+### 🧪 How to run tests
+
 ## Demon Tool
 
 *(To be implemented)*
