@@ -1,8 +1,0 @@
-README.md
-pyproject.toml
-cli_scanner.egg-info/PKG-INFO
-cli_scanner.egg-info/SOURCES.txt
-cli_scanner.egg-info/dependency_links.txt
-cli_scanner.egg-info/entry_points.txt
-cli_scanner.egg-info/requires.txt
-cli_scanner.egg-info/top_level.txt
