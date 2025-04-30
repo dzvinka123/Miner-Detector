@@ -15,8 +15,14 @@ readme = "README.md"
 dependencies = [
     "dotenv",
     "psutil",
-    "subprocess.run"
+    "gputil",
+    "subprocess.run",
+    "python-nmap",
+    "setuptools"
 ]
+
+[tool.setuptools]
+packages = ["cli"]
 
 [project.scripts]
 cli-scanner = "cli_scanner.scanner:main"

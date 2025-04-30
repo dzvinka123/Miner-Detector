@@ -1,0 +1,6 @@
+dotenv
+psutil
+gputil
+subprocess.run
+python-nmap
+setuptools
