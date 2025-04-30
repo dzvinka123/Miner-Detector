@@ -4,11 +4,13 @@ import argparse
 
 from sys import platform
 from processes_logs_scanner import (
-    scan_processes,
-    user_accessible_scan,
-    user_system_wide_scan,
+    processes_scan,
+    logs_scan,
+    scan_cpu,
+    scan_gpu,
+    scan_network,
+    scan_js,
     LOG_FILES,
-    LOG_DIRS,
 )
 
 
@@ -23,16 +25,27 @@ def main():
     parser.add_argument(
         "-f", "--file", help="File to save results into.", default="scan_results.txt"
     )
-    parser.add_argument("-d", "--dir", help="Directory to scan.")
+    parser.add_argument("--logs", help="Logs directory to scan.")
     parser.add_argument(
         "-t",
         "--time",
         help="How long ago something has been done (e.g., 24h, 7d).",
         default="24h",
     )
+    parser.add_argument("--cpu", help="Flag to perform CPU scanning.")
+    parser.add_argument("--gpu", help="Flag to perform GPU scanning.")
+    parser.add_argument("--proc", help="Flag to perform processes scanning.")
+    parser.add_argument("-n", "--network", help="Network URL to scan.")
+    parser.add_argument("--js", help="JS file to scan.")
+
     args = parser.parse_args()
-    directory = args.dir
+    logs = args.logs
     time = args.time
+    cpu = args.cpu
+    gpu = args.gpu
+    proc = args.proc
+    network = args.network
+    js = args.js
 
     write_file = open(
         args.file, "a", encoding="utf8"
@@ -40,16 +53,31 @@ def main():
 
     if os.geteuid() != 0:
         print(
-            "System wide logs were not analyzed as current user is not root. Please re-run the script as root using 'sudo'."
+            "System wide logs '/var/log/system.log' for MacOS and '/var/log/syslog' for Linux could not be analyzed as current user is not root. Please re-run the script as root using 'sudo'."
         )
         sys.exit(1)
 
-    scan_processes(write_file)
+    if proc:
+        processes_scan(write_file)
+
+    if cpu:
+        scan_cpu(write_file)
+
+    if gpu:
+        scan_gpu(write_file)
+
+    if network:
+        scan_network(network, write_file)
+
+    if js:
+        scan_js(js, write_file)
 
     if platform == "darwin":
         LOG_FILES.extend(
             [
                 os.path.expanduser("~/Library/Logs/"),
+                os.path.expanduser("/var/log/system.log"),
+                os.path.expanduser("/var/log/install.log"),
                 # os.path.expanduser("~/Library/LaunchAgents/"),
                 # os.path.expanduser("~/Library/Application Support/"),
                 # os.path.expanduser("~/Library/Caches/"),
@@ -62,40 +90,18 @@ def main():
                 os.path.expanduser("~/.bashrc"),
                 os.path.expanduser("~/.xsession"),
                 os.path.expanduser("~/.xinitrc"),
+                os.path.expanduser("/var/log/syslog"),
             ],
         )
 
-    if directory:
-        if os.path.isdir(directory):
-            LOG_FILES.append(directory)
+    if logs:
+        if os.path.isdir(logs):
+            LOG_FILES.append(logs)
         else:
-            print(f"Provided directory {directory} is not a valid directory.")
+            print(f"Provided logs directory {logs} is not a valid directory.")
             sys.exit(1)
 
-    user_accessible_scan(write_file, time=time)
-
-    if platform == "darwin":
-        LOG_DIRS.extend(
-            [
-                os.path.expanduser("/var/log/system.log"),
-                os.path.expanduser("/var/log/install.log"),
-                os.path.expanduser("/tmp"),
-                # os.path.expanduser("/Library/LaunchAgents/"),
-                # os.path.expanduser("~/Library/LaunchDaemons/"),
-            ],
-        )
-    elif platform == "linux":
-        LOG_DIRS.extend(
-            [
-                os.path.expanduser("/var/log/syslog"),
-                os.path.expanduser("/tmp"),
-                # os.path.expanduser("/var/log/messages"),
-                # os.path.expanduser("/var/log/auth.log"),
-                # os.path.expanduser("/var/log/kern.log"),
-            ],
-        )
-
-    user_system_wide_scan(write_file, time=time)
+    logs_scan(write_file, time=time)
 
     write_file.close()
     print(f"Results are written inside: {args.file}")

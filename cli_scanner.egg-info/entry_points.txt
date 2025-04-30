@@ -1,0 +1,2 @@
+[console_scripts]
+cli-scanner = cli_scanner.scanner:main

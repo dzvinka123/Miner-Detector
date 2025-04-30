@@ -1,6 +1,9 @@
 import os
+import re
 import time
 import psutil
+import GPUtil
+import requests
 import subprocess
 
 from sys import platform
@@ -11,11 +14,8 @@ from util import parse_time_threshold
 load_dotenv()
 
 suspicious_keywords = os.getenv("SUSPICIOUS_KEYWORDS", "")
-miner_names = os.getenv("MINER_NAMES", "")
 log_files = os.getenv("LOG_FILES", "")
 
-LOG_DIRS = []
-MINERS = miner_names.split(",") if miner_names else []
 SUSPICIOUS_KEYWORDS = suspicious_keywords.split(",") if suspicious_keywords else []
 LOG_FILES = [os.path.expanduser(elem) for elem in log_files.split(",")]
 
@@ -27,7 +27,7 @@ def is_suspicious(line):
     return any(keyword in line.lower() for keyword in SUSPICIOUS_KEYWORDS)
 
 
-def scan_processes(write_file):
+def processes_scan(write_file):
     """
     Scanning processes for suspicious keywords.
     """
@@ -35,11 +35,11 @@ def scan_processes(write_file):
     for proc in psutil.process_iter(["pid", "name"]):
         try:
             process_name = proc.info["name"].lower()
-            for miner in MINERS:
-                if miner not in process_name:
-                    write_file.write(
-                        f"Process: {proc.info['pid']}, {proc.info['name']}\n"
-                    )
+            process_exe = proc.info["exe"].lower()
+            if is_suspicious(process_name) or is_suspicious(process_exe):
+                write_file.write(
+                    f"Process {proc.info['pid']}: {proc.info['name']}\n executable: {proc.info['exe']}\n CPU percentage: {proc.info['cpu_percent']}\n"
+                )
         except (psutil.NoSuchProcess, psutil.AccessDenied):
             pass
 
@@ -48,6 +48,7 @@ def scan_journalctl(write_file):
     """
     Scanning Journalctl on Linux systems.
     """
+    print("Scanning Journalctl logs...")
     try:
         output = subprocess.check_output(
             ["journalctl", "--user", "-n", "1000"], stderr=subprocess.DEVNULL
@@ -63,12 +64,12 @@ def scan_journalctl(write_file):
 
 def scan_file(file_path, write_file, time_thresh="24h"):
     """
-    Scanning user-accessible files with cashes adn etc.
+    Scanning files by given file path.
     """
     time_threshold_seconds = parse_time_threshold(time_thresh)  # convert to seconds
-    last_day = time.time() - time_threshold_seconds
+    last_time = time.time() - time_threshold_seconds
     if access(file_path, R_OK):
-        if os.path.getmtime(file_path) > last_day:
+        if os.path.getmtime(file_path) > last_time:
             try:
                 with open(file_path, "r", errors="ignore", encoding="utf8") as file:
                     for i, line in enumerate(file, 1):
@@ -78,69 +79,67 @@ def scan_file(file_path, write_file, time_thresh="24h"):
                             )
             except Exception as e:
                 print(e)
-                print(f"[!] File does not have reading access {file_path}\n")
-                write_file.write(f"[!] File does not have reading access {file_path}\n")
+                print(f"[!] File failed openning {file_path}\n")
+                write_file.write(f"[!] File failed openning {file_path}\n")
+
+    else:
+        print(f"[!] File does not have reading access  {file_path}\n")
+        write_file.write(f"[!] File does not have reading access {file_path}\n")
 
 
-def user_accessible_scan(write_file, time):
+def logs_scan(write_file, time):
     """
     Scanning user-accessible directories with cashes and etc.
     """
-    print("Scanning user-accessible directories...")
+    print("Scanning logs and directories...")
     for path in LOG_FILES:
-        if os.path.isfile(path):
-            scan_file(path, write_file, time)
-        elif os.path.isdir(path):
-            for root, _, files in os.walk(path):
-                for f in files:
-                    scan_file(os.path.join(root, f), write_file, time)
-
+        if os.path.exists(path):
+            if os.path.isfile(path):
+                if os.path.getsize(path) < 10 * 1024 * 1024:  # 10MB
+                    scan_file(path, write_file, time)
+                else:
+                    write_file.write(f"[!] Skipped {path} due to excessive size.\n")
+            elif os.path.isdir(path):
+                for root, _, files in os.walk(path):
+                    for f in files:
+                        scan_file(os.path.join(root, f), write_file, time)
+        else:
+            print(f"[!] File does not exist {path}\n")
     if platform == "linux":
-        print("Scanning Journalctl logs...")
         scan_journalctl(write_file)
 
 
-def tmp_dir_scan(tmp_path, write_file, time):
-    """
-    Scanning /tmp directory.
-    """
-    for root, _, files in os.walk(tmp_path):
-        for f in files:
-            full_path = os.path.join(root, f)
-            try:
-                if os.path.getsize(full_path) < 10 * 1024 * 1024:  # 10MB
-                    scan_file(full_path, write_file, time)
-            except Exception as e:
-                write_file.write(f"[!] Skipped {full_path}: {e}\n")
+def scan_cpu(write_file):
+    print("Scanning CPU...")
+    write_file.write(f"CPU Usage: {psutil.cpu_percent(interval=1)}%\n")
+    write_file.write(f"CPU Cores: {psutil.cpu_count(logical=False)}\n")
+    write_file.write(f"Total CPU Threads: {psutil.cpu_count()}\n")
 
 
-def var_log_scan(path, write_file, lines=1000):
-    """
-    Scanning /var/log/... directory.
-    """
-    try:
-        with open(path, "rb") as f:
-            f.seek(0, os.SEEK_END)
-            size = f.tell()
-            block = -1024
-            data = b""
-            while len(data.splitlines()) <= lines and abs(block) < size:
-                f.seek(block, os.SEEK_END)
-                data = f.read() + data
-                block *= 2
-            return data.decode(errors="ignore").splitlines()[-lines:]
-    except Exception as e:
-        write_file.write(f"[!] Could not read {path}: {e}\n")
-        return []
+def scan_gpu(write_file):
+    print("Scanning GPU...")
+    gpus = GPUtil.getGPUs()
+    for gpu in gpus:
+        write_file.write(f"GPU: {gpu.name}\n")
+        write_file.write(f"Load: {gpu.load*100:.1f}%\n")
+        write_file.write(f"Memory Used: {gpu.memoryUsed}MB / {gpu.memoryTotal}MB\n")
 
 
-def user_system_wide_scan(write_file, time):
-    """
-    Scanning system wide logs with root permission.
-    """
-    print("Scanning system wide logs...")
-    for path in LOG_DIRS:
-        if path.startswith("/tmp"):
-            tmp_dir_scan(path, write_file, time)
-        elif path.startswith("/var/log"):
-            var_log_scan(path, write_file, time)
+def scan_network(network_url, write_file):
+    print("Scanning network URL...")
+    response = requests.get(network_url, timeout=10)
+    content = response.text.lower()
+
+    if is_suspicious(content):
+        # highlight all sus entries
+        write_file.write(f"URL {network_url} is suspicious.\n")
+
+
+def scan_js(js_file, write_file):
+    with open(js_file, "r", encoding="utf-8") as file:
+        content = file.read().lower()
+
+    regex_patterns = [f'r"{elem}"' for elem in SUSPICIOUS_KEYWORDS]
+    for pattern in regex_patterns:
+        if re.search(pattern, content):
+            write_file.write(f"JS content of file {js_file} is suspicious.\n")
