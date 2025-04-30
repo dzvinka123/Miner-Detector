@@ -41,6 +41,7 @@ def ask_and_check_root():
         return True
     return False
 
+
 def send_report_to_server(report_text, server_url="http://localhost:5555/report"):
     try:
         response = requests.post(server_url, data=report_text.encode("utf-8"))

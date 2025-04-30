@@ -132,7 +132,9 @@ def scan_gpu(report_buffer):
         for gpu in gpus:
             report_buffer.write(f"GPU: {gpu.name}\n")
             report_buffer.write(f"Load: {gpu.load*100:.1f}%\n")
-            report_buffer.write(f"Memory Used: {gpu.memoryUsed}MB / {gpu.memoryTotal}MB\n")
+            report_buffer.write(
+                f"Memory Used: {gpu.memoryUsed}MB / {gpu.memoryTotal}MB\n"
+            )
     else:
         print("No GPUs detected.")
         report_buffer.write(f"[!] GPU: No GPUs detected.\n")

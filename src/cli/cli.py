@@ -18,6 +18,7 @@ from cli.processes_logs_scanner import (
 
 from cli.util import send_report_to_server
 
+
 def main():
     """
     Starts execution, contain main logic of program.
@@ -122,6 +123,7 @@ def main():
     report_text = report_buffer.getvalue()
     send_report_to_server(report_text)
     report_buffer.close()
+
 
 if __name__ == "__main__":
     main()
