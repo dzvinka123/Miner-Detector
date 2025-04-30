@@ -1,6 +1,5 @@
 import os
 import sys
-import argparse
 from io import StringIO
 
 from sys import platform
@@ -19,35 +18,10 @@ from cli.processes_logs_scanner import (
 from cli.util import send_report_to_server
 
 
-def main():
+def scan(args):
     """
     Starts execution, contain main logic of program.
     """
-    parser = argparse.ArgumentParser(
-        description="CLI Scanner for Miners Detection.",
-        epilog="Example usage: python scanner.py results.txt -d /home/user -t 24h",
-    )
-    parser.add_argument("--logs", help="Logs directory to scan.")
-    parser.add_argument(
-        "-t",
-        "--time",
-        help="How long ago something has been done (e.g., 24h, 7d).",
-        default="24h",
-    )
-    parser.add_argument(
-        "--cpu", action="store_true", help="Flag to perform CPU scanning."
-    )
-    parser.add_argument(
-        "--gpu", action="store_true", help="Flag to perform GPU scanning."
-    )
-    parser.add_argument(
-        "--proc", action="store_true", help="Flag to perform processes scanning."
-    )
-    parser.add_argument("-n", "--network", help="Flag to perform network scanning.")
-    parser.add_argument("--url", help="URL to scan.")
-    parser.add_argument("--js", help="JS file to scan.")
-
-    args = parser.parse_args()
     logs = args.logs
     time = args.time
     cpu = args.cpu
@@ -123,7 +97,3 @@ def main():
     report_text = report_buffer.getvalue()
     send_report_to_server(report_text)
     report_buffer.close()
-
-
-if __name__ == "__main__":
-    main()
