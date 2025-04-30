@@ -17,6 +17,7 @@ load_dotenv()
 suspicious_keywords = os.getenv("SUSPICIOUS_KEYWORDS", "")
 log_files = os.getenv("LOG_FILES", "")
 
+MINING_PORTS = os.getenv("MINNING_PORTS", "")
 SUSPICIOUS_KEYWORDS = suspicious_keywords.split(",") if suspicious_keywords else []
 LOG_FILES = [os.path.expanduser(elem) for elem in log_files.split(",")]
 
