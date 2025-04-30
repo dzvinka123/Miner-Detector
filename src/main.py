@@ -1,7 +1,7 @@
 import argparse
 
 from cli.cli import scan
-from servers.daemon_tool import ScannerDaemon
+from services.daemon_tool import ScannerDaemon
 
 
 def parse_args():
@@ -58,8 +58,20 @@ def parse_args():
     daemon_parser.add_argument(
         "-n", "--network", action="store_true", help="Scan network activity"
     )
+    scan_parser.add_argument("--url", metavar="URL", help="Scan a specific URL")
+    scan_parser.add_argument("--js", metavar="JS_FILE", help="Scan a JavaScript file")
+    parser.add_argument(
+        "-t",
+        "--time",
+        help="How long ago something has been done (e.g., 24h, 7d).",
+        default="24h",
+    )
     daemon_parser.add_argument(
-        "--duration", type=int, required=True, help="Duration to run in seconds"
+        "--duration",
+        type=int,
+        required=True,
+        help="Duration to run in seconds",
+        default=300,
     )
     daemon_parser.add_argument(
         "--int",
@@ -67,6 +79,7 @@ def parse_args():
         type=int,
         required=True,
         help="Interval between scans in seconds",
+        default=30,
     )
 
     return parser.parse_args()

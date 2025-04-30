@@ -59,6 +59,12 @@ class ScannerDaemon:
             f.write(f"{pid}\n")
 
     def run(self):
-        while True:
+        start_time = time.time()
+        duration = self.args.duration
+        interval = self.args.int
+
+        while time.time() - start_time < duration:
             scan(self.args)
-            time.sleep(10)
+            time.sleep(interval)
+        print("Daemon finished running.")
+        self.delpid()
