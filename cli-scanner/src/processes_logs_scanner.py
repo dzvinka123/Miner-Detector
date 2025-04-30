@@ -125,7 +125,10 @@ def scan_gpu(write_file):
         write_file.write(f"Memory Used: {gpu.memoryUsed}MB / {gpu.memoryTotal}MB\n")
 
 
-def scan_network(network_url, write_file):
+def scan_network():
+    pass
+
+def scan_url(network_url, write_file):
     print("Scanning network URL...")
     response = requests.get(network_url, timeout=10)
     content = response.text.lower()

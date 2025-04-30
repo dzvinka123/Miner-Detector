@@ -9,6 +9,7 @@ from processes_logs_scanner import (
     scan_cpu,
     scan_gpu,
     scan_network,
+    scan_url,
     scan_js,
     LOG_FILES,
 )
@@ -35,7 +36,8 @@ def main():
     parser.add_argument("--cpu", help="Flag to perform CPU scanning.")
     parser.add_argument("--gpu", help="Flag to perform GPU scanning.")
     parser.add_argument("--proc", help="Flag to perform processes scanning.")
-    parser.add_argument("-n", "--network", help="Network URL to scan.")
+    parser.add_argument("-n", "--network", help="Flag to perform network scanning.")
+    parser.add_argument("--url", help="URL to scan.")
     parser.add_argument("--js", help="JS file to scan.")
 
     args = parser.parse_args()
@@ -45,6 +47,7 @@ def main():
     gpu = args.gpu
     proc = args.proc
     network = args.network
+    url = args.url
     js = args.js
 
     write_file = open(
@@ -67,7 +70,10 @@ def main():
         scan_gpu(write_file)
 
     if network:
-        scan_network(network, write_file)
+        scan_network()
+
+    if url:
+        scan_url(url, write_file)
 
     if js:
         scan_js(js, write_file)
