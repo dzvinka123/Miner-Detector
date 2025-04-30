@@ -7,19 +7,21 @@ app = Flask(__name__)
 reports = []
 
 HIGHLIGHT_WORDS = os.getenv("SUSPICIOUS_KEYWORDS", "")
-HIGHLIGHT_REGEX = re.compile(r'(' + '|'.join(HIGHLIGHT_WORDS) + r')', re.IGNORECASE)
+HIGHLIGHT_REGEX = re.compile(r"(" + "|".join(HIGHLIGHT_WORDS) + r")", re.IGNORECASE)
 
 
-@app.route('/report', methods=['POST'])
+@app.route("/report", methods=["POST"])
 def report():
     content = request.get_data(as_text=True)
     timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     reports.append((timestamp, highlight(content)))
     return "Report received", 200
 
-@app.route('/')
+
+@app.route("/")
 def index():
-    return render_template_string("""
+    return render_template_string(
+        """
     <!DOCTYPE html>
     <html>
     <head>
@@ -49,16 +51,20 @@ def index():
         </div>
     </body>
     </html>
-    """, reports=reports)
+    """,
+        reports=reports,
+    )
 
-@app.route('/clear', methods=['POST'])
+
+@app.route("/clear", methods=["POST"])
 def clear():
     reports.clear()
-    return redirect(url_for('index'))
+    return redirect(url_for("index"))
 
 
 def highlight(text):
-    return HIGHLIGHT_REGEX.sub(r'<mark>\1</mark>', text)
+    return HIGHLIGHT_REGEX.sub(r"<mark>\1</mark>", text)
 
-if __name__ == '__main__':
-    app.run(host='localhost', port=5555, debug=True)
+
+if __name__ == "__main__":
+    app.run(host="localhost", port=5555, debug=True)
