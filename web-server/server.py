@@ -62,5 +62,6 @@ def clear():
     reports.clear()
     return redirect(url_for("index"))
 
+
 if __name__ == "main":
     app.run(host="localhost", port=5555, debug=True)
