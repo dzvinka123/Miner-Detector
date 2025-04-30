@@ -128,6 +128,7 @@ def scan_gpu(write_file):
         write_file.write(f"Load: {gpu.load*100:.1f}%\n")
         write_file.write(f"Memory Used: {gpu.memoryUsed}MB / {gpu.memoryTotal}MB\n")
 
+
 def discover_active_hosts(network):
     """
     Function to discover active hosts in the network
@@ -136,9 +137,10 @@ def discover_active_hosts(network):
     nm = nmap.PortScanner()
     print(f"Scanning for active hosts in {network}...")
 
-    nm.scan(hosts=network, arguments='-sn')  # Ping scan
-    active_hosts = [host for host in nm.all_hosts() if nm[host].state() == 'up']
+    nm.scan(hosts=network, arguments="-sn")  # Ping scan
+    active_hosts = [host for host in nm.all_hosts() if nm[host].state() == "up"]
     return active_hosts
+
 
 def scan_hosts_for_miner_ports(hosts):
     """
@@ -146,14 +148,16 @@ def scan_hosts_for_miner_ports(hosts):
     """
 
     nm = nmap.PortScanner()
-    
+
     for host in hosts:
         print(f"Scanning {host} for mining ports ({MINING_PORTS})...")
         nm.scan(hosts=host, arguments=f"-p {MINING_PORTS} --open")
         for protocol in nm[host].all_protocols():
             for port in sorted(nm[host][protocol].keys()):
-                print(f"{host} has port {port}/{protocol} OPEN — Potential mining activity")
- 
+                print(
+                    f"{host} has port {port}/{protocol} OPEN — Potential mining activity"
+                )
+
 
 def scan_url(network_url, write_file):
     print("Scanning network URL...")
