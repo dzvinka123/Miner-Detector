@@ -12,6 +12,8 @@ from processes_logs_scanner import (
     scan_url,
     scan_js,
     LOG_FILES,
+    scan_hosts_for_miner_ports,
+    discover_active_hosts,
 )
 
 
@@ -70,7 +72,11 @@ def main():
         scan_gpu(write_file)
 
     if network:
-        scan_network()
+        active_hosts = discover_active_hosts(network)
+        if active_hosts:
+            scan_hosts_for_miner_ports(active_hosts)
+        else:
+            print("No active hosts found.")
 
     if url:
         scan_url(url, write_file)

@@ -11,11 +11,15 @@ from os import access, R_OK
 from dotenv import load_dotenv
 from util import parse_time_threshold
 
+import nmap
+
+
 load_dotenv()
 
 suspicious_keywords = os.getenv("SUSPICIOUS_KEYWORDS", "")
 log_files = os.getenv("LOG_FILES", "")
 
+MINING_PORTS = os.getenv("MINNING_PORTS")
 SUSPICIOUS_KEYWORDS = suspicious_keywords.split(",") if suspicious_keywords else []
 LOG_FILES = [os.path.expanduser(elem) for elem in log_files.split(",")]
 
@@ -124,10 +128,32 @@ def scan_gpu(write_file):
         write_file.write(f"Load: {gpu.load*100:.1f}%\n")
         write_file.write(f"Memory Used: {gpu.memoryUsed}MB / {gpu.memoryTotal}MB\n")
 
+def discover_active_hosts(network):
+    """
+    Function to discover active hosts in the network
+    """
 
-def scan_network():
-    pass
+    nm = nmap.PortScanner()
+    print(f"Scanning for active hosts in {network}...")
 
+    nm.scan(hosts=network, arguments='-sn')  # Ping scan
+    active_hosts = [host for host in nm.all_hosts() if nm[host].state() == 'up']
+    return active_hosts
+
+def scan_hosts_for_miner_ports(hosts):
+    """
+    Function to scan each host for mining-related ports
+    """
+
+    nm = nmap.PortScanner()
+    
+    for host in hosts:
+        print(f"Scanning {host} for mining ports ({MINING_PORTS})...")
+        nm.scan(hosts=host, arguments=f"-p {MINING_PORTS} --open")
+        for protocol in nm[host].all_protocols():
+            for port in sorted(nm[host][protocol].keys()):
+                print(f"{host} has port {port}/{protocol} OPEN — Potential mining activity")
+ 
 
 def scan_url(network_url, write_file):
     print("Scanning network URL...")
