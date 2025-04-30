@@ -31,7 +31,7 @@ def parse_args():
     )
     scan_parser.add_argument("--url", metavar="URL", help="Scan a specific URL")
     scan_parser.add_argument("--js", metavar="JS_FILE", help="Scan a JavaScript file")
-    parser.add_argument(
+    scan_parser.add_argument(
         "-t",
         "--time",
         help="How long ago something has been done (e.g., 24h, 7d).",

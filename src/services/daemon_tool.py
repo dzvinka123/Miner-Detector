@@ -61,7 +61,7 @@ class ScannerDaemon:
     def run(self):
         start_time = time.time()
         duration = self.args.duration
-        interval = self.args.int
+        interval = self.args.interval
 
         while time.time() - start_time < duration:
             scan(self.args)
