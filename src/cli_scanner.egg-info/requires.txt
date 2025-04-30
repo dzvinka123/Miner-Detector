@@ -4,3 +4,4 @@ gputil
 subprocess.run
 python-nmap
 setuptools
+requests

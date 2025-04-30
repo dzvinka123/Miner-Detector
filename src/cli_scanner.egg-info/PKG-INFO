@@ -11,6 +11,7 @@ Requires-Dist: gputil
 Requires-Dist: subprocess.run
 Requires-Dist: python-nmap
 Requires-Dist: setuptools
+Requires-Dist: requests
 
 # Miner Detector
 

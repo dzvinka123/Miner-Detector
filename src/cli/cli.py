@@ -3,7 +3,7 @@ import sys
 import argparse
 
 from sys import platform
-from processes_logs_scanner import (
+from cli.processes_logs_scanner import (
     processes_scan,
     logs_scan,
     scan_cpu,
