@@ -9,7 +9,7 @@ reports = []
 load_dotenv()
 
 HIGHLIGHT_WORDS = os.getenv("SUSPICIOUS_KEYWORDS", "")
-HIGHLIGHT_REGEX = re.compile(r'(' + '|'.join(HIGHLIGHT_WORDS) + r')', re.IGNORECASE)
+HIGHLIGHT_REGEX = re.compile(r"(" + "|".join(HIGHLIGHT_WORDS) + r")", re.IGNORECASE)
 
 
 @app.route("/report", methods=["POST"])
