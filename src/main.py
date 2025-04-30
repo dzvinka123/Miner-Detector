@@ -69,7 +69,6 @@ def parse_args():
     daemon_parser.add_argument(
         "--duration",
         type=int,
-        required=True,
         help="Duration to run in seconds",
         default=300,
     )
@@ -77,7 +76,6 @@ def parse_args():
         "--int",
         dest="interval",
         type=int,
-        required=True,
         help="Interval between scans in seconds",
         default=30,
     )
