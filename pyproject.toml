@@ -30,7 +30,7 @@ package-dir = {"" = "src"}
 where = ["src"]
 
 [project.scripts]
-cli-scanner = "cli.cli:main"
+cli-scanner = "scanner.main:main"
 
 [project.urls]
 "Homepage" = "https://github.com/dzvinka123/Miner-Detector"
