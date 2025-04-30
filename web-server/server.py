@@ -1,6 +1,5 @@
 from flask import Flask, request, redirect, url_for, render_template_string
 from datetime import datetime
-import re
 import os
 from dotenv import load_dotenv
 
@@ -33,7 +32,7 @@ def index():
         <div class="container mt-4">
             <h1 class="mb-4">Suspicious Reports</h1>
             <form action="{{ url_for('clear') }}" method="post">
-                <button type="submit" class="btn btn-danger mb-3">CLear all reports</button>
+                <button type="submit" class="btn btn-danger mb-3">Clear all reports</button>
             </form>
             {% if reports %}
                 {% for time, report in reports|reverse %}
