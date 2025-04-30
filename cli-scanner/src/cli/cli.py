@@ -8,12 +8,11 @@ from processes_logs_scanner import (
     logs_scan,
     scan_cpu,
     scan_gpu,
-    scan_network,
+    scan_hosts_for_miner_ports,
+    discover_active_hosts,
     scan_url,
     scan_js,
     LOG_FILES,
-    scan_hosts_for_miner_ports,
-    discover_active_hosts,
 )
 
 
@@ -35,9 +34,15 @@ def main():
         help="How long ago something has been done (e.g., 24h, 7d).",
         default="24h",
     )
-    parser.add_argument("--cpu", help="Flag to perform CPU scanning.")
-    parser.add_argument("--gpu", help="Flag to perform GPU scanning.")
-    parser.add_argument("--proc", help="Flag to perform processes scanning.")
+    parser.add_argument(
+        "--cpu", action="store_true", help="Flag to perform CPU scanning."
+    )
+    parser.add_argument(
+        "--gpu", action="store_true", help="Flag to perform GPU scanning."
+    )
+    parser.add_argument(
+        "--proc", action="store_true", help="Flag to perform processes scanning."
+    )
     parser.add_argument("-n", "--network", help="Flag to perform network scanning.")
     parser.add_argument("--url", help="URL to scan.")
     parser.add_argument("--js", help="JS file to scan.")

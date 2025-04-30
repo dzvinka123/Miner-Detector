@@ -1,6 +1,7 @@
 import os
 import re
 import time
+import nmap
 import psutil
 import GPUtil
 import requests
@@ -11,15 +12,11 @@ from os import access, R_OK
 from dotenv import load_dotenv
 from util import parse_time_threshold
 
-import nmap
-
-
 load_dotenv()
 
 suspicious_keywords = os.getenv("SUSPICIOUS_KEYWORDS", "")
 log_files = os.getenv("LOG_FILES", "")
 
-MINING_PORTS = os.getenv("MINNING_PORTS")
 SUSPICIOUS_KEYWORDS = suspicious_keywords.split(",") if suspicious_keywords else []
 LOG_FILES = [os.path.expanduser(elem) for elem in log_files.split(",")]
 
@@ -36,13 +33,16 @@ def processes_scan(write_file):
     Scanning processes for suspicious keywords.
     """
     print("Scanning processes...")
-    for proc in psutil.process_iter(["pid", "name"]):
+    for proc in psutil.process_iter(["pid", "name", "exe"]):
         try:
             process_name = proc.info["name"].lower()
-            process_exe = proc.info["exe"].lower()
+            process_exe = (
+                proc.info["exe"].lower() if proc.info["exe"] is not None else ""
+            )
             if is_suspicious(process_name) or is_suspicious(process_exe):
+                cpu = proc.cpu_percent(interval=None)
                 write_file.write(
-                    f"Process {proc.info['pid']}: {proc.info['name']}\n executable: {proc.info['exe']}\n CPU percentage: {proc.info['cpu_percent']}\n"
+                    f"Process {proc.info['pid']}: {proc.info['name']}\n executable: {proc.info['exe']}\n CPU percentage: {cpu}%\n"
                 )
         except (psutil.NoSuchProcess, psutil.AccessDenied):
             pass
@@ -77,6 +77,11 @@ def scan_file(file_path, write_file, time_thresh="24h"):
             try:
                 with open(file_path, "r", errors="ignore", encoding="utf8") as file:
                     for i, line in enumerate(file, 1):
+                        if is_suspicious(file_path):
+                            write_file.write(
+                                f"[!] Suspicious entry file {file_path}.\n"
+                            )
+                            break
                         if is_suspicious(line):
                             write_file.write(
                                 f"[!] Suspicious entry in {file_path}:{i}: {line.strip()}\n"
@@ -122,11 +127,15 @@ def scan_cpu(write_file):
 
 def scan_gpu(write_file):
     print("Scanning GPU...")
-    gpus = GPUtil.getGPUs()
-    for gpu in gpus:
-        write_file.write(f"GPU: {gpu.name}\n")
-        write_file.write(f"Load: {gpu.load*100:.1f}%\n")
-        write_file.write(f"Memory Used: {gpu.memoryUsed}MB / {gpu.memoryTotal}MB\n")
+    if GPUtil.getAvailable():
+        gpus = GPUtil.getGPUs()
+        for gpu in gpus:
+            write_file.write(f"GPU: {gpu.name}\n")
+            write_file.write(f"Load: {gpu.load*100:.1f}%\n")
+            write_file.write(f"Memory Used: {gpu.memoryUsed}MB / {gpu.memoryTotal}MB\n")
+    else:
+        print("No GPUs detected.")
+        write_file.write(f"[!] GPU: No GPUs detected.\n")
 
 
 def discover_active_hosts(network):
@@ -146,37 +155,43 @@ def scan_hosts_for_miner_ports(hosts):
     """
     Function to scan each host for mining-related ports
     """
-    port_scanner = nmap.PortScanner()
-    
+
+    nm = nmap.PortScanner()
+
     for host in hosts:
         print(f"Scanning {host} for mining ports ({MINING_PORTS})...")
-        port_scanner.scan(hosts=host, arguments=f"-p {MINING_PORTS} --open")
-
-        if host in port_scanner.all_hosts():
-            for protocol in port_scanner[host].all_protocols():
-                ports = port_scanner[host][protocol]
-                for port in sorted(ports.keys()):
-                    service_name = ports[port].get('name', 'unknown')
-                    print(f"{host} has port {port}/{protocol} OPEN — Potential mining activity (Service: {service_name})")
-        else:
-            print(f"{host} has no potential mining activity.")
+        nm.scan(hosts=host, arguments=f"-p {MINING_PORTS} --open")
+        for protocol in nm[host].all_protocols():
+            for port in sorted(nm[host][protocol].keys()):
+                print(
+                    f"[!] {host} has port {port}/{protocol} OPEN — Potential mining activity"
+                )
 
 
-def scan_url(network_url, write_file):
-    print("Scanning network URL...")
-    response = requests.get(network_url, timeout=10)
+def scan_url(url, write_file):  # to test
+    print("Scanning URL...")
+    response = requests.get(url, timeout=10)
     content = response.text.lower()
+
+    if is_suspicious(url):
+        write_file.write(f"[!] URL {url} name is suspicious.\n")
 
     if is_suspicious(content):
         # highlight all sus entries
-        write_file.write(f"URL {network_url} is suspicious.\n")
+        write_file.write(f"[!] URL {url} is suspicious.\n")
 
 
 def scan_js(js_file, write_file):
-    with open(js_file, "r", encoding="utf-8") as file:
-        content = file.read().lower()
+    if access(js_file, R_OK):
+        with open(js_file, "r", encoding="utf-8") as file:
+            content = file.read().lower()
 
-    regex_patterns = [f'r"{elem}"' for elem in SUSPICIOUS_KEYWORDS]
-    for pattern in regex_patterns:
-        if re.search(pattern, content):
-            write_file.write(f"JS content of file {js_file} is suspicious.\n")
+        if is_suspicious(js_file):
+            write_file.write(f"[!] JS file name {js_file} is suspicious.\n")
+
+        if is_suspicious(content):
+            write_file.write(f"[!] JS content of file {js_file} is suspicious.\n")
+
+    else:
+        print(f"Opening {js_file} for reading failed.")
+        write_file.write(f"[!] File does not have reading access {js_file}")
