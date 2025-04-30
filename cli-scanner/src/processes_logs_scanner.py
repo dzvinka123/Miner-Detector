@@ -128,6 +128,7 @@ def scan_gpu(write_file):
 def scan_network():
     pass
 
+
 def scan_url(network_url, write_file):
     print("Scanning network URL...")
     response = requests.get(network_url, timeout=10)
