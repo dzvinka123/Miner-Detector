@@ -9,6 +9,7 @@ reports = []
 load_dotenv()
 
 HIGHLIGHT_WORDS = os.getenv("SUSPICIOUS_KEYWORDS", "")
+HIGHLIGHT_REGEX = re.compile(r'(' + '|'.join(HIGHLIGHT_WORDS) + r')', re.IGNORECASE)
 
 
 @app.route("/report", methods=["POST"])
@@ -63,8 +64,8 @@ def clear():
     return redirect(url_for("index"))
 
 
-# def highlight(text):
-#     return HIGHLIGHT_REGEX.sub(r"<mark>\1</mark>", text)
+def highlight(text):
+    return HIGHLIGHT_REGEX.sub(r"<mark>\1</mark>", text)
 
 
 if __name__ == "main":
