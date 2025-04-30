@@ -1,6 +1,7 @@
 import re
 import os
 import sys
+import requests
 
 
 def parse_time_threshold(time_str):
@@ -39,3 +40,13 @@ def ask_and_check_root():
             sys.exit(1)
         return True
     return False
+
+def send_report_to_server(report_text, server_url="http://localhost:5555/report"):
+    try:
+        response = requests.post(server_url, data=report_text.encode("utf-8"))
+        if response.status_code == 200:
+            print("[✓] Report sent successfully.")
+        else:
+            print(f"[!] Failed to send report. Status: {response.status_code}")
+    except Exception as e:
+        print(f"[!] Error sending report: {e}")

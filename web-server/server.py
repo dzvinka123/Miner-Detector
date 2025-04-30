@@ -2,19 +2,20 @@ from flask import Flask, request, redirect, url_for, render_template_string
 from datetime import datetime
 import re
 import os
+from dotenv import load_dotenv
 
 app = Flask(__name__)
 reports = []
+load_dotenv()
 
 HIGHLIGHT_WORDS = os.getenv("SUSPICIOUS_KEYWORDS", "")
-HIGHLIGHT_REGEX = re.compile(r"(" + "|".join(HIGHLIGHT_WORDS) + r")", re.IGNORECASE)
 
 
 @app.route("/report", methods=["POST"])
 def report():
     content = request.get_data(as_text=True)
     timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    reports.append((timestamp, highlight(content)))
+    reports.append((timestamp, content))
     return "Report received", 200
 
 
@@ -30,9 +31,9 @@ def index():
     </head>
     <body class="bg-light">
         <div class="container mt-4">
-            <h1 class="mb-4">🚨 Suspicious Reports</h1>
+            <h1 class="mb-4">Suspicious Reports</h1>
             <form action="{{ url_for('clear') }}" method="post">
-                <button type="submit" class="btn btn-danger mb-3">🗑 CLear all reports</button>
+                <button type="submit" class="btn btn-danger mb-3">CLear all reports</button>
             </form>
             {% if reports %}
                 {% for time, report in reports|reverse %}
@@ -62,9 +63,9 @@ def clear():
     return redirect(url_for("index"))
 
 
-def highlight(text):
-    return HIGHLIGHT_REGEX.sub(r"<mark>\1</mark>", text)
+# def highlight(text):
+#     return HIGHLIGHT_REGEX.sub(r"<mark>\1</mark>", text)
 
 
-if __name__ == "__main__":
+if __name__ == "main":
     app.run(host="localhost", port=5555, debug=True)

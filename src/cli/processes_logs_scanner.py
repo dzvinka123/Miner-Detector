@@ -28,7 +28,7 @@ def is_suspicious(line):
     return any(keyword in line.lower() for keyword in SUSPICIOUS_KEYWORDS)
 
 
-def processes_scan(write_file):
+def processes_scan(report_buffer):
     """
     Scanning processes for suspicious keywords.
     """
@@ -41,14 +41,14 @@ def processes_scan(write_file):
             )
             if is_suspicious(process_name) or is_suspicious(process_exe):
                 cpu = proc.cpu_percent(interval=None)
-                write_file.write(
+                report_buffer.write(
                     f"Process {proc.info['pid']}: {proc.info['name']}\n executable: {proc.info['exe']}\n CPU percentage: {cpu}%\n"
                 )
         except (psutil.NoSuchProcess, psutil.AccessDenied):
             pass
 
 
-def scan_journalctl(write_file):
+def scan_journalctl(report_buffer):
     """
     Scanning Journalctl on Linux systems.
     """
@@ -59,14 +59,14 @@ def scan_journalctl(write_file):
         )
         for line in output.decode(errors="ignore").splitlines():
             if is_suspicious(line):
-                write_file.write(f"[!] Suspicious Journalctl entry: {line}\n")
+                report_buffer.write(f"[!] Suspicious Journalctl entry: {line}\n")
     except Exception as e:
         print(e)
-        write_file.write(e)
-        write_file.write("\n")
+        report_buffer.write(e)
+        report_buffer.write("\n")
 
 
-def scan_file(file_path, write_file, time_thresh="24h"):
+def scan_file(file_path, report_buffer, time_thresh="24h"):
     """
     Scanning files by given file path.
     """
@@ -78,25 +78,25 @@ def scan_file(file_path, write_file, time_thresh="24h"):
                 with open(file_path, "r", errors="ignore", encoding="utf8") as file:
                     for i, line in enumerate(file, 1):
                         if is_suspicious(file_path):
-                            write_file.write(
+                            report_buffer.write(
                                 f"[!] Suspicious entry file {file_path}.\n"
                             )
                             break
                         if is_suspicious(line):
-                            write_file.write(
+                            report_buffer.write(
                                 f"[!] Suspicious entry in {file_path}:{i}: {line.strip()}\n"
                             )
             except Exception as e:
                 print(e)
                 print(f"[!] File failed openning {file_path}\n")
-                write_file.write(f"[!] File failed openning {file_path}\n")
+                report_buffer.write(f"[!] File failed openning {file_path}\n")
 
     else:
         print(f"[!] File does not have reading access  {file_path}\n")
-        write_file.write(f"[!] File does not have reading access {file_path}\n")
+        report_buffer.write(f"[!] File does not have reading access {file_path}\n")
 
 
-def logs_scan(write_file, time):
+def logs_scan(report_buffer, time):
     """
     Scanning user-accessible directories with cashes and etc.
     """
@@ -105,37 +105,37 @@ def logs_scan(write_file, time):
         if os.path.exists(path):
             if os.path.isfile(path):
                 if os.path.getsize(path) < 10 * 1024 * 1024:  # 10MB
-                    scan_file(path, write_file, time)
+                    scan_file(path, report_buffer, time)
                 else:
-                    write_file.write(f"[!] Skipped {path} due to excessive size.\n")
+                    report_buffer.write(f"[!] Skipped {path} due to excessive size.\n")
             elif os.path.isdir(path):
                 for root, _, files in os.walk(path):
                     for f in files:
-                        scan_file(os.path.join(root, f), write_file, time)
+                        scan_file(os.path.join(root, f), report_buffer, time)
         else:
             print(f"[!] File does not exist {path}\n")
     if platform == "linux":
-        scan_journalctl(write_file)
+        scan_journalctl(report_buffer)
 
 
-def scan_cpu(write_file):
+def scan_cpu(report_buffer):
     print("Scanning CPU...")
-    write_file.write(f"CPU Usage: {psutil.cpu_percent(interval=1)}%\n")
-    write_file.write(f"CPU Cores: {psutil.cpu_count(logical=False)}\n")
-    write_file.write(f"Total CPU Threads: {psutil.cpu_count()}\n")
+    report_buffer.write(f"CPU Usage: {psutil.cpu_percent(interval=1)}%\n")
+    report_buffer.write(f"CPU Cores: {psutil.cpu_count(logical=False)}\n")
+    report_buffer.write(f"Total CPU Threads: {psutil.cpu_count()}\n")
 
 
-def scan_gpu(write_file):
+def scan_gpu(report_buffer):
     print("Scanning GPU...")
     if GPUtil.getAvailable():
         gpus = GPUtil.getGPUs()
         for gpu in gpus:
-            write_file.write(f"GPU: {gpu.name}\n")
-            write_file.write(f"Load: {gpu.load*100:.1f}%\n")
-            write_file.write(f"Memory Used: {gpu.memoryUsed}MB / {gpu.memoryTotal}MB\n")
+            report_buffer.write(f"GPU: {gpu.name}\n")
+            report_buffer.write(f"Load: {gpu.load*100:.1f}%\n")
+            report_buffer.write(f"Memory Used: {gpu.memoryUsed}MB / {gpu.memoryTotal}MB\n")
     else:
         print("No GPUs detected.")
-        write_file.write(f"[!] GPU: No GPUs detected.\n")
+        report_buffer.write(f"[!] GPU: No GPUs detected.\n")
 
 
 def discover_active_hosts(network):
@@ -173,30 +173,30 @@ def scan_hosts_for_miner_ports(hosts):
             print(f"{host} has no potential mining activity.")
 
 
-def scan_url(url, write_file):  # to test
+def scan_url(url, report_buffer):  # to test
     print("Scanning URL...")
     response = requests.get(url, timeout=10)
     content = response.text.lower()
 
     if is_suspicious(url):
-        write_file.write(f"[!] URL {url} name is suspicious.\n")
+        report_buffer.write(f"[!] URL {url} name is suspicious.\n")
 
     if is_suspicious(content):
         # highlight all sus entries
-        write_file.write(f"[!] URL {url} is suspicious.\n")
+        report_buffer.write(f"[!] URL {url} is suspicious.\n")
 
 
-def scan_js(js_file, write_file):
+def scan_js(js_file, report_buffer):
     if access(js_file, R_OK):
         with open(js_file, "r", encoding="utf-8") as file:
             content = file.read().lower()
 
         if is_suspicious(js_file):
-            write_file.write(f"[!] JS file name {js_file} is suspicious.\n")
+            report_buffer.write(f"[!] JS file name {js_file} is suspicious.\n")
 
         if is_suspicious(content):
-            write_file.write(f"[!] JS content of file {js_file} is suspicious.\n")
+            report_buffer.write(f"[!] JS content of file {js_file} is suspicious.\n")
 
     else:
         print(f"Opening {js_file} for reading failed.")
-        write_file.write(f"[!] File does not have reading access {js_file}")
+        report_buffer.write(f"[!] File does not have reading access {js_file}")

@@ -19,7 +19,8 @@ dependencies = [
     "subprocess.run",
     "python-nmap",
     "setuptools",
-    "requests"
+    "requests", 
+    "Python-IO"
 ]
 
 [tool.setuptools]
