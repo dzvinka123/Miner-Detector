@@ -51,10 +51,10 @@ There is a `pyproject.toml` file in the main repository directory, which is used
 
 ### Option 1: Using pip directly
 
-```bash
-pip install -r requirements.txt
-pip install .
-```
+    ```bash
+    pip install -r requirements.txt
+    pip install .
+    ```
 
 ### Option 2: Using a virtual environment (venv)
 
