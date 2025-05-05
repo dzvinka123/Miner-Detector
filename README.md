@@ -58,32 +58,34 @@ pip install .
 
 1. Create and activate a virtual environment:
 
-  ```bash
-  python3 -m venv .venv
-  source .venv/bin/activate
-  ```
+    ```bash
+    python3 -m venv .venv
+    source .venv/bin/activate
+    ```
 
 2. Install the package:
-  ```bash
-  pip install -r requirements.txt
-  pip install .
-  ```
+
+    ```bash
+    pip install -r requirements.txt
+    pip install .
+    ```
 
 ### Option 3: Using Conda
 
 1. Create and activate a conda environment:
 
-  ```bash
-  conda create -n cli-scanner python=3.11
-  conda activate cli-scanner
-  ```
+    ```bash
+    conda create -n cli-scanner python=3.11
+    conda activate cli-scanner
+    ```
 
 2. Install the package:
-  ```bash
-  conda install pip
-  pip install -r requirements.txt
-  pip install .
-  ```
+
+    ```bash
+    conda install pip
+    pip install -r requirements.txt
+    pip install .
+    ```
 
 ## 📁 Structure
 
