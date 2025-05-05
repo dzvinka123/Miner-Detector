@@ -14,11 +14,9 @@ from core.util import parse_time_threshold
 load_dotenv()
 
 suspicious_keywords = os.getenv("SUSPICIOUS_KEYWORDS", "")
-log_files = os.getenv("LOG_FILES", "")
 
 MINING_PORTS = os.getenv("MINNING_PORTS", "")
 SUSPICIOUS_KEYWORDS = suspicious_keywords.split(",") if suspicious_keywords else []
-LOG_FILES = [os.path.expanduser(elem) for elem in log_files.split(",")]
 
 
 def is_suspicious(line):
@@ -96,12 +94,12 @@ def scan_file(file_path, report_buffer, time_thresh="24h"):
         report_buffer.write(f"[!] File does not have reading access {file_path}\n")
 
 
-def logs_scan(report_buffer, time):
+def logs_scan(log_files, report_buffer, time):
     """
     Scanning user-accessible directories with cashes and etc.
     """
     print("Scanning logs and directories...")
-    for path in LOG_FILES:
+    for path in log_files:
         if os.path.exists(path):
             if os.path.isfile(path):
                 if os.path.getsize(path) < 10 * 1024 * 1024:  # 10MB
@@ -168,7 +166,9 @@ def scan_hosts_for_miner_ports(hosts, report_buffer):
                 ports = port_scanner[host][protocol]
                 for port in sorted(ports.keys()):
                     service_name = ports[port].get("name", "unknown")
-                    report_buffer.write(f"[!] {host} has port {port}/{protocol} OPEN — Potential mining activity (Service: {service_name})\n")
+                    report_buffer.write(
+                        f"[!] {host} has port {port}/{protocol} OPEN — Potential mining activity (Service: {service_name})\n"
+                    )
         else:
             report_buffer.write(f"[!] {host} has no potential mining activity.")
 
@@ -181,7 +181,9 @@ def scan_url(url, report_buffer):
     if is_suspicious(url):
         report_buffer.write(f"[!] URL {url} name is suspicious.\n")
     else:
-        report_buffer.write(f"[!] URL {url} name is NOT suspicious and is safe for visiting.\n")
+        report_buffer.write(
+            f"[!] URL {url} name is NOT suspicious and is safe for visiting.\n"
+        )
 
     if is_suspicious(content):
         # highlight all sus entries
@@ -203,7 +205,9 @@ def scan_js(js_file, report_buffer):
         if is_suspicious(content):
             report_buffer.write(f"[!] JS content of file {js_file} is suspicious.\n")
         else:
-            report_buffer.write(f"[!] JS content of file {js_file} is NOT suspicious.\n")
+            report_buffer.write(
+                f"[!] JS content of file {js_file} is NOT suspicious.\n"
+            )
 
     else:
         print(f"Opening {js_file} for reading failed.")

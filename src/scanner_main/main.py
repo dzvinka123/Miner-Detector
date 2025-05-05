@@ -24,7 +24,10 @@ def parse_args():
         "--cpu", action="store_true", help="Scan for suspicious CPU usage"
     )
     scan_parser.add_argument(
-        "--logs", action="store_true", help="Scan logs in the given directory"
+        "--logs", action="store_true", help="Scan for suspicious log entries"
+    )
+    scan_parser.add_argument(
+        "--dir", metavar="DIR", help="Scan logs in the given directory"
     )
     scan_parser.add_argument("--url", metavar="URL", help="Scan a specific URL")
     scan_parser.add_argument("--js", metavar="JS_FILE", help="Scan a JavaScript file")
@@ -65,6 +68,7 @@ def main():
             gpu=args.gpu,
             cpu=args.cpu,
             logs=args.logs,
+            dir=args.dir,
             url=args.url,
             js=args.js,
             time=args.time,

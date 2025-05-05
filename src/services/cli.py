@@ -3,6 +3,7 @@ import sys
 from io import StringIO
 
 from sys import platform
+from dotenv import load_dotenv
 from core.processes_logs_scanner import (
     processes_scan,
     logs_scan,
@@ -12,10 +13,12 @@ from core.processes_logs_scanner import (
     discover_active_hosts,
     scan_url,
     scan_js,
-    LOG_FILES,
 )
-
 from core.util import send_report_to_server
+
+load_dotenv()
+log_files = os.getenv("LOG_FILES", "")
+LOG_FILES = [os.path.expanduser(elem) for elem in log_files.split(",")]
 
 
 def scan(
@@ -23,6 +26,7 @@ def scan(
     proc=False,
     cpu=False,
     gpu=False,
+    dir=None,
     network=None,
     js=None,
     url=None,
@@ -85,12 +89,14 @@ def scan(
         )
 
     if logs:
-        logs_scan(report_buffer, time=time)
-        # if os.path.isdir(logs):
-        #     LOG_FILES.append(logs)
-        # else:
-        #     print(f"Provided logs directory {logs} is not a valid directory.")
-        #     sys.exit(1)
+        logs_scan(LOG_FILES, report_buffer, time=time)
+
+    if dir:
+        if os.path.isdir(dir):
+            logs_scan([dir], report_buffer, time=time)
+        else:
+            print(f"Provided logs directory {dir} is not a valid directory.")
+            sys.exit(1)
 
     print(f"Results are shown: web server name")
     print("Scan complete.")
