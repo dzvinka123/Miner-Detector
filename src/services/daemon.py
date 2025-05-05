@@ -7,7 +7,28 @@ from services.cli import scan
 
 
 class ScannerDaemon:
-    def __init__(self, duration, interval, network=None):
+    """
+    A class that runs a scanner as a daemon, performing periodic scans based on given intervals.
+
+    Attributes:
+        stdin (str): The input file descriptor.
+        stdout (str): The output file descriptor.
+        stderr (str): The error file descriptor.
+        pidfile (str): The file path for the daemon's PID file.
+        duration (int): The duration for which the daemon runs, in seconds.
+        interval (int): The interval between scans, in seconds.
+        network (str, optional): The network interface to scan, if any.
+    """
+
+    def __init__(self, duration: int, interval: int, network: str = None) -> None:
+        """
+        Initializes the ScannerDaemon instance.
+
+        Args:
+            duration (int): The duration for which the daemon should run, in seconds.
+            interval (int): The interval between scans, in seconds.
+            network (str, optional): The network interface to scan, if any.
+        """
         self.stdin = "/dev/null"
         self.stdout = "/tmp/scan_daemon.log"
         self.stderr = "/tmp/scan_daemon_err.log"
@@ -16,10 +37,22 @@ class ScannerDaemon:
         self.interval = interval
         self.network = network
 
-    def delpid(self):
+    def delpid(self) -> None:
+        """
+        Removes the PID file when the daemon exits.
+
+        Returns:
+            None
+        """
         os.remove(self.pidfile)
 
-    def daemonize(self):
+    def daemonize(self) -> None:
+        """
+        Turns the process into a daemon by forking twice and detaching from the terminal.
+
+        Returns:
+            None
+        """
         try:
             pid = os.fork()
             if pid > 0:
@@ -60,7 +93,13 @@ class ScannerDaemon:
         with open(self.pidfile, "w+") as f:
             f.write(f"{pid}\n")
 
-    def run(self):
+    def run(self) -> None:
+        """
+        Runs the daemon, executing the scan periodically for the specified duration and interval.
+
+        Returns:
+            None
+        """
         start_time = time.time()
         duration = self.duration
         interval = self.interval

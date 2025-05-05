@@ -11,7 +11,16 @@ HIGHLIGHT_WORDS = os.getenv("SUSPICIOUS_KEYWORDS", "")
 
 
 @app.route("/report", methods=["POST"])
-def report():
+def report() -> str:
+    """
+    Receive and store a suspicious report with a timestamp.
+
+    Args:
+        None
+
+    Returns:
+        str: A confirmation message indicating the report was received.
+    """
     content = request.get_data(as_text=True)
     timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     reports.append((timestamp, content))
@@ -19,7 +28,16 @@ def report():
 
 
 @app.route("/")
-def index():
+def index() -> str:
+    """
+    Render the index page displaying suspicious reports.
+
+    Args:
+        None
+
+    Returns:
+        str: The rendered HTML string for the index page.
+    """
     return render_template_string(
         """
     <!DOCTYPE html>
@@ -57,7 +75,16 @@ def index():
 
 
 @app.route("/clear", methods=["POST"])
-def clear():
+def clear() -> str:
+    """
+    Clear all stored suspicious reports.
+
+    Args:
+        None
+
+    Returns:
+        str: A redirect to the index page after clearing the reports.
+    """
     reports.clear()
     return redirect(url_for("index"))
 

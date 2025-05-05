@@ -1,6 +1,7 @@
 import os
 import time
 import subprocess
+from io import StringIO
 
 from sys import platform
 from os import access, R_OK
@@ -16,16 +17,28 @@ SUSPICIOUS_KEYWORDS = suspicious_keywords.split(",") if suspicious_keywords else
 LOG_FILES = [os.path.expanduser(elem) for elem in log_files.split(",")]
 
 
-def is_suspicious(line):
+def is_suspicious(line: str) -> bool:
     """
-    Check whether given log has any suspicious keyword.
+    Check whether the given log contains any suspicious keyword.
+
+    Args:
+        line (str): A line of text to be checked for suspicious keywords.
+
+    Returns:
+        bool: True if any suspicious keyword is found, False otherwise.
     """
     return any(keyword in line.lower() for keyword in SUSPICIOUS_KEYWORDS)
 
 
-def scan_journalctl(report_buffer):
+def scan_journalctl(report_buffer: StringIO) -> None:
     """
-    Scanning Journalctl on Linux systems.
+    Scans Journalctl logs on Linux systems and writes suspicious entries to the report buffer.
+
+    Args:
+        report_buffer (StringIO): A StringIO object used to store the scan results.
+
+    Returns:
+        None
     """
     print("Scanning Journalctl logs...")
     try:
@@ -41,9 +54,19 @@ def scan_journalctl(report_buffer):
         report_buffer.write("\n")
 
 
-def scan_file(file_path, report_buffer, time_thresh="24h"):
+def scan_file(
+    file_path: str, report_buffer: StringIO, time_thresh: str = "24h"
+) -> None:
     """
-    Scanning files by given file path.
+    Scans a file for suspicious entries and writes the results to the report buffer.
+
+    Args:
+        file_path (str): The path to the file to be scanned.
+        report_buffer (StringIO): A StringIO object used to store the scan results.
+        time_thresh (str): A time threshold (default "24h") used to filter file modifications.
+
+    Returns:
+        None
     """
     time_threshold_seconds = parse_time_threshold(time_thresh)  # convert to seconds
     last_time = time.time() - time_threshold_seconds
@@ -71,9 +94,17 @@ def scan_file(file_path, report_buffer, time_thresh="24h"):
         report_buffer.write(f"[!] File does not have reading access {file_path}\n")
 
 
-def logs_scan(logs_files, report_buffer, time):
+def logs_scan(logs_files: list, report_buffer: StringIO, time: str) -> None:
     """
-    Scanning user-accessible directories with cashes and etc.
+    Scans user-accessible directories and files for suspicious entries and writes results to the report buffer.
+
+    Args:
+        logs_files (list): A list of paths to files and directories to be scanned.
+        report_buffer (StringIO): A StringIO object used to store the scan results.
+        time (str): A time threshold used to filter file modifications.
+
+    Returns:
+        None
     """
     print("Scanning logs and directories...")
     for path in logs_files:

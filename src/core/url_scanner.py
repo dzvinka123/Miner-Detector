@@ -11,14 +11,30 @@ suspicious_keywords = os.getenv("SUSPICIOUS_KEYWORDS", "")
 SUSPICIOUS_KEYWORDS = suspicious_keywords.split(",") if suspicious_keywords else []
 
 
-def is_suspicious(line):
+def is_suspicious(line: str) -> bool:
     """
-    Check whether given log has any suspicious keyword.
+    Check whether the given log contains any suspicious keyword.
+
+    Args:
+        line (str): A line of text to be checked for suspicious keywords.
+
+    Returns:
+        bool: True if any suspicious keyword is found, False otherwise.
     """
     return any(keyword in line.lower() for keyword in SUSPICIOUS_KEYWORDS)
 
 
-def scan_url(url, report_buffer):
+def scan_url(url: str, report_buffer) -> None:
+    """
+    Scan the specified URL for suspicious links, including IP addresses and suspicious keywords.
+
+    Args:
+        url (str): The URL to be scanned.
+        report_buffer (file-like object): A buffer where suspicious findings are written.
+
+    Returns:
+        None
+    """
     print(f"Scanning URL: {url}")
 
     try:

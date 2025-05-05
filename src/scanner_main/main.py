@@ -4,7 +4,13 @@ from services.cli import scan
 from services.daemon import ScannerDaemon
 
 
-def parse_args():
+def parse_args() -> argparse.Namespace:
+    """
+    Parse command-line arguments for the miner detector CLI tool.
+
+    Returns:
+        argparse.Namespace: The parsed arguments.
+    """
     parser = argparse.ArgumentParser(description="Miner Detector CLI Tool")
 
     subparsers = parser.add_subparsers(
@@ -59,7 +65,13 @@ def parse_args():
     return parser.parse_args()
 
 
-def main():
+def main() -> None:
+    """
+    Main entry point for the miner detector CLI tool.
+
+    Returns:
+        None
+    """
     args = parse_args()
 
     if args.mode == "scan":

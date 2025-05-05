@@ -24,20 +24,33 @@ LOG_FILES = [os.path.expanduser(elem) for elem in log_files.split(",")]
 
 
 def scan(
-    logs=False,
-    proc=False,
-    cpu=False,
-    gpu=False,
-    dir=None,
-    network=None,
-    js=None,
-    url=None,
-    time="24h",
-):
+    logs: bool = False,
+    proc: bool = False,
+    cpu: bool = False,
+    gpu: bool = False,
+    dir: str = None,
+    network: str = None,
+    js: str = None,
+    url: str = None,
+    time: str = "24h",
+) -> None:
     """
-    Starts execution, contain main logic of program.
-    """
+    Starts execution and contains the main logic of the program, scanning for various suspicious activities.
 
+    Args:
+        logs (bool): Whether to scan logs (default is False).
+        proc (bool): Whether to scan running processes (default is False).
+        cpu (bool): Whether to scan for suspicious CPU usage (default is False).
+        gpu (bool): Whether to scan for suspicious GPU usage (default is False).
+        dir (str, optional): Directory to scan logs from (default is None).
+        network (str, optional): Network interface to scan (default is None).
+        js (str, optional): JavaScript file to scan (default is None).
+        url (str, optional): URL to scan (default is None).
+        time (str): Time duration for logs scan (default is "24h").
+
+    Returns:
+        None
+    """
     report_buffer = StringIO()
 
     if os.geteuid() != 0:

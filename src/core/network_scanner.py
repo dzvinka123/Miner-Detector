@@ -9,18 +9,29 @@ MINING_PORTS = os.getenv("MINNING_PORTS", "")
 SUSPICIOUS_KEYWORDS = suspicious_keywords.split(",") if suspicious_keywords else []
 
 
-def is_suspicious(line):
+def is_suspicious(line: str) -> bool:
     """
-    Check whether given log has any suspicious keyword.
+    Check whether the given log contains any suspicious keyword.
+
+    Args:
+        line (str): A line of text to be checked for suspicious keywords.
+
+    Returns:
+        bool: True if any suspicious keyword is found, False otherwise.
     """
     return any(keyword in line.lower() for keyword in SUSPICIOUS_KEYWORDS)
 
 
-def discover_active_hosts(network):
+def discover_active_hosts(network: str) -> list:
     """
-    Function to discover active hosts in the network
-    """
+    Discover active hosts in the specified network using a ping scan.
 
+    Args:
+        network (str): The network address to scan for active hosts.
+
+    Returns:
+        list: A list of active host IPs.
+    """
     nm = nmap.PortScanner()
     print(f"Scanning for active hosts in {network}...")
 
@@ -29,9 +40,15 @@ def discover_active_hosts(network):
     return active_hosts
 
 
-def scan_hosts_for_miner_ports(hosts):
+def scan_hosts_for_miner_ports(hosts: list) -> None:
     """
-    Function to scan each host for mining-related ports
+    Scan each host for open ports related to mining activity.
+
+    Args:
+        hosts (list): A list of host IPs to scan for mining-related ports.
+
+    Returns:
+        None
     """
     port_scanner = nmap.PortScanner()
 
