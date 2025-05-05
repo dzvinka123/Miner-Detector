@@ -75,10 +75,9 @@ def scan(
 
     if devmode:
         scan_url(devmode, report_buffer)
-    
+
     if js:
         scan_js(js, report_buffer)
-
 
     if platform == "darwin":
         LOG_FILES.extend(
@@ -119,7 +118,6 @@ def scan(
 
     print("Scan complete.")
     print(f"Results are shown here: http://127.0.0.1:5555/")
-
 
     report_text = report_buffer.getvalue()
     send_report_to_server(report_text)

@@ -115,14 +115,17 @@ def scan():
         text=True,
     )
 
-    response = jsonify({
-        "message": "Scan started",
-        "stdout": result.stdout,
-        "stderr": result.stderr,
-        "returncode": result.returncode
-    })
+    response = jsonify(
+        {
+            "message": "Scan started",
+            "stdout": result.stdout,
+            "stderr": result.stderr,
+            "returncode": result.returncode,
+        }
+    )
     response.headers.add("Access-Control-Allow-Origin", "*")
     return response
+
 
 if __name__ == "main":
     app.run(host="localhost", port=5555, debug=True)

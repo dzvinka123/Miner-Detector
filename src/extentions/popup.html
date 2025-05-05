@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Scan URL</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+      body {
+          padding: 15px;
+          font-family: sans-serif;
+      }
+      .container {
+          border: 1px solid #ccc;
+          border-radius: 5px;
+          padding: 15px;
+          width: 300px;
+      }
+      h3 {
+          margin-top: 0;
+          margin-bottom: 15px;
+          color: #333;
+      }
+      input[type="text"] {
+          width: calc(100% - 12px);
+          padding: 8px;
+          margin-bottom: 10px;
+          border: 1px solid #ddd;
+          border-radius: 3px;
+          box-sizing: border-box;
+      }
+      button {
+          padding: 10px 15px;
+          background-color: #8a2be2; /* Violet */
+          color: white;
+          border: none;
+          border-radius: 20px; /* More rounded corners */
+          cursor: pointer;
+          font-size: 16px;
+      }
+      button:hover {
+          background-color: #6a1bb9; /* Slightly darker violet */
+      }
+      #status {
+          margin-top: 10px;
+          font-size: 14px;
+          color: #555;
+      }
+    </style>
+
+</head>
+<body>
+    <div class="container">
+        <h3>Scan URL</h3>
+        <input type="text" id="urlInput" placeholder="https://example.com" />
+        <button id="scanButton">Scan Url</button>
+        <p id="status"></p>
+    </div>
+    <script src="popup.js"></script>
+</body>
+</html>
