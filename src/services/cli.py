@@ -3,7 +3,7 @@ import sys
 from io import StringIO
 
 from sys import platform
-from cli.processes_logs_scanner import (
+from core.processes_logs_scanner import (
     processes_scan,
     logs_scan,
     scan_cpu,
@@ -15,21 +15,22 @@ from cli.processes_logs_scanner import (
     LOG_FILES,
 )
 
-from cli.util import send_report_to_server
+from core.util import send_report_to_server
 
 
-def scan(args):
+def scan(
+    logs=False,
+    proc=False,
+    cpu=False,
+    gpu=False,
+    network=None,
+    js=None,
+    url=None,
+    time=None,
+):
     """
     Starts execution, contain main logic of program.
     """
-    logs = args.logs
-    time = args.time
-    cpu = args.cpu
-    gpu = args.gpu
-    proc = args.proc
-    network = args.network
-    url = args.url
-    js = args.js
 
     report_buffer = StringIO()
 
@@ -84,13 +85,13 @@ def scan(args):
         )
 
     if logs:
-        if os.path.isdir(logs):
-            LOG_FILES.append(logs)
-        else:
-            print(f"Provided logs directory {logs} is not a valid directory.")
-            sys.exit(1)
+        logs_scan(report_buffer, time=time)
+        # if os.path.isdir(logs):
+        #     LOG_FILES.append(logs)
+        # else:
+        #     print(f"Provided logs directory {logs} is not a valid directory.")
+        #     sys.exit(1)
 
-    logs_scan(report_buffer, time=time)
     print(f"Results are shown: web server name")
     print("Scan complete.")
 

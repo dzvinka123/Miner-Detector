@@ -1,7 +1,7 @@
 import argparse
 
-from cli.cli import scan
-from services.daemon_tool import ScannerDaemon
+from services.cli import scan
+from services.daemon import ScannerDaemon
 
 
 def parse_args():
@@ -24,15 +24,11 @@ def parse_args():
         "--cpu", action="store_true", help="Scan for suspicious CPU usage"
     )
     scan_parser.add_argument(
-        "--logs", metavar="LOG_DIR", help="Scan logs in the given directory"
-    )
-    scan_parser.add_argument(
-        "-n", "--network", action="store_true", help="Scan network activity"
+        "--logs", action="store_true", help="Scan logs in the given directory"
     )
     scan_parser.add_argument("--url", metavar="URL", help="Scan a specific URL")
     scan_parser.add_argument("--js", metavar="JS_FILE", help="Scan a JavaScript file")
     scan_parser.add_argument(
-        "-t",
         "--time",
         help="How long ago something has been done (e.g., 24h, 7d).",
         default="24h",
@@ -42,30 +38,7 @@ def parse_args():
     daemon_parser = subparsers.add_parser(
         "daemon", help="Run in background as a daemon"
     )
-
-    daemon_parser.add_argument(
-        "--proc", action="store_true", help="Scan running processes"
-    )
-    daemon_parser.add_argument(
-        "--gpu", action="store_true", help="Scan for suspicious GPU usage"
-    )
-    daemon_parser.add_argument(
-        "--cpu", action="store_true", help="Scan for suspicious CPU usage"
-    )
-    daemon_parser.add_argument(
-        "--logs", metavar="LOG_DIR", help="Scan logs in the given directory"
-    )
-    daemon_parser.add_argument(
-        "-n", "--network", action="store_true", help="Scan network activity"
-    )
-    daemon_parser.add_argument("--url", metavar="URL", help="Scan a specific URL")
-    daemon_parser.add_argument("--js", metavar="JS_FILE", help="Scan a JavaScript file")
-    daemon_parser.add_argument(
-        "-t",
-        "--time",
-        help="How long ago something has been done (e.g., 24h, 7d).",
-        default="24h",
-    )
+    daemon_parser.add_argument("--network", metavar="NET", help="Scan network activity")
     daemon_parser.add_argument(
         "--duration",
         type=int,
@@ -87,9 +60,19 @@ def main():
     args = parse_args()
 
     if args.mode == "scan":
-        scan(args)
+        scan(
+            proc=args.proc,
+            gpu=args.gpu,
+            cpu=args.cpu,
+            log=args.logs,
+            url=args.url,
+            js=args.js,
+            time=args.time,
+        )
     elif args.mode == "daemon":
-        daemon = ScannerDaemon(args)
+        daemon = ScannerDaemon(
+            duration=args.duration, interval=args.interval, network=args.network
+        )
         daemon.daemonize()
         daemon.run()
 

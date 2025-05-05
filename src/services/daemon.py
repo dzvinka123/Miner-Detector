@@ -3,16 +3,18 @@ import sys
 import time
 import atexit
 
-from cli.cli import scan
+from services.cli import scan
 
 
 class ScannerDaemon:
-    def __init__(self, args):
+    def __init__(self, duration, interval, network=None):
         self.stdin = "/dev/null"
-        self.stdout = "/tmp/mydaemon.log"
-        self.stderr = "/tmp/mydaemon_err.log"
-        self.pidfile = "/tmp/mydaemon.pid"
-        self.args = args
+        self.stdout = "/tmp/scan_daemon.log"
+        self.stderr = "/tmp/scan_daemon_err.log"
+        self.pidfile = "/tmp/scan_daemon.pid"
+        self.duration = duration
+        self.interval = interval
+        self.network = network
 
     def delpid(self):
         os.remove(self.pidfile)
@@ -60,11 +62,11 @@ class ScannerDaemon:
 
     def run(self):
         start_time = time.time()
-        duration = self.args.duration
-        interval = self.args.interval
+        duration = self.duration
+        interval = self.interval
 
         while time.time() - start_time < duration:
-            scan(self.args)
+            scan(proc=True, gpu=True, cpu=True, logs=True, network=self.network)
             time.sleep(interval)
         print("Daemon finished running.")
         self.delpid()
