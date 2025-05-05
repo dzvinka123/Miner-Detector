@@ -1,6 +1,6 @@
 import unittest
 import pytest
-from src.core.util import parse_time_threshold, send_report_to_server
+from core.util import parse_time_threshold, send_report_to_server
 from unittest.mock import patch, Mock
 
 

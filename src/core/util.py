@@ -47,6 +47,7 @@ def send_report_to_server(report_text, server_url="http://localhost:5555/report"
         response = requests.post(server_url, data=report_text.encode("utf-8"))
         if response.status_code == 200:
             print("[✓] Report sent successfully.")
+            return 200
         else:
             print(f"[!] Failed to send report. Status: {response.status_code}")
     except Exception as e:
