@@ -22,10 +22,15 @@ def scan_js(js_file, report_buffer):
 
         if is_suspicious(js_file):
             report_buffer.write(f"[!] JS file name {js_file} is suspicious.\n")
+        else:
+            report_buffer.write(f"[!] JS file name {js_file} is NOT suspicious.\n")
 
         if is_suspicious(content):
             report_buffer.write(f"[!] JS content of file {js_file} is suspicious.\n")
-
+        else:
+            report_buffer.write(
+                f"[!] JS content of file {js_file} is NOT suspicious.\n"
+            )
     else:
         print(f"Opening {js_file} for reading failed.")
         report_buffer.write(f"[!] File does not have reading access {js_file}")

@@ -5,7 +5,7 @@ import subprocess
 from sys import platform
 from os import access, R_OK
 from dotenv import load_dotenv
-from util import parse_time_threshold
+from core.util import parse_time_threshold
 
 load_dotenv()
 

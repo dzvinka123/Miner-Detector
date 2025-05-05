@@ -4,16 +4,18 @@ from io import StringIO
 
 from sys import platform
 from dotenv import load_dotenv
-from core.processes_logs_scanner import (
-    processes_scan,
-    logs_scan,
+from core.cpu_gpu_scanner import (
     scan_cpu,
     scan_gpu,
+)
+from core.jsfile_scanner import scan_js
+from core.logs_scanner import logs_scan
+from core.network_scanner import (
     scan_hosts_for_miner_ports,
     discover_active_hosts,
-    scan_url,
-    scan_js,
 )
+from core.processes_scannes import processes_scan
+from core.url_scanner import scan_url
 from core.util import send_report_to_server
 
 load_dotenv()
@@ -98,8 +100,8 @@ def scan(
             print(f"Provided logs directory {dir} is not a valid directory.")
             sys.exit(1)
 
-    print(f"Results are shown: web server name")
     print("Scan complete.")
+    print(f"Results are shown here: http://127.0.0.1:5555/")
 
     report_text = report_buffer.getvalue()
     send_report_to_server(report_text)
