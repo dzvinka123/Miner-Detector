@@ -10,6 +10,7 @@ load_dotenv()
 suspicious_keywords = os.getenv("SUSPICIOUS_KEYWORDS", "")
 SUSPICIOUS_KEYWORDS = suspicious_keywords.split(",") if suspicious_keywords else []
 
+
 def is_suspicious(line):
     """
     Check whether given log has any suspicious keyword.

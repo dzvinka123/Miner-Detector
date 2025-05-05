@@ -1,6 +1,7 @@
 import psutil
 import GPUtil
 
+
 def scan_cpu(report_buffer):
     print("Scanning CPU...")
     report_buffer.write(f"CPU Usage: {psutil.cpu_percent(interval=1)}%\n")
