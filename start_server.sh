@@ -1,3 +1,3 @@
 #!/bin/bash
 
-flask --app web-server/server run --port=5555 
+flask --app ./scr/web-server/server.py run --port=5555 
