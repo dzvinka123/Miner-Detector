@@ -11,7 +11,7 @@ This project is divided into the following parts:
 - **CLI Scanner**  
   Scans processes and system logs for suspicious activity.
 
-- **Demon Tool**  
+- **Daemon Tool**  
   Runs in the background to monitor applications, network traffic, and the usage of CPUs and GPUs.
 
 - **Browser Extension**  
@@ -43,41 +43,119 @@ This repository includes a `.pre-commit-config.yaml` file to enforce consistent 
    pre-commit run --all-files
    ```
 
+## ⚙️ Python Package
+
+There is a `pyproject.toml` file in the main repository directory, which is used to create a Python package. To use the scanner, it is recommended to install it beforehand. You can install and use the scanner via several methods depending on your preferred environment setup.
+
+### Option 1: Using pip directly
+
+```bash
+pip install -r requirements.txt
+pip install .
+```
+
+### Option 2: Using a virtual environment (venv)
+
+1. Create and activate a virtual environment:
+
+  ```bash
+  python3 -m venv .venv
+  source .venv/bin/activate
+  ```
+
+2. Install the package:
+  ```bash
+  pip install -r requirements.txt
+  pip install .
+  ```
+
+### Option 3: Using Conda
+
+1. Create and activate a conda environment:
+
+  ```bash
+  conda create -n cli-scanner python=3.11
+  conda activate cli-scanner
+  ```
+
+2. Install the package:
+  ```bash
+  conda install pip
+  pip install -r requirements.txt
+  pip install .
+  ```
+
+## 📁 Structure
+
+```bash
+Miner-Detector/
+├── pyproject.toml             # Project metadata and dependencies
+├── README.md
+├── requirements.txt           # List of dependencies
+├── start_server.sh            # Shell script to start the server
+
+├── src/
+│   ├── core/
+│   │   ├── processes_logs_scanner.py  # Scans logs and running processes
+│   │   └── utils.py           # Helper and utility functions
+│   ├── extensions/
+│   ├── main.py                # Main entry point
+│   └── services/
+│       ├── cli.py             # CLI scanner
+│       ├── daemon.py          # Background daemon logic for the scanner
+│       └── web-server/
+│           └── server.py      # Flask server implementation
+
+├── tests/
+│   ├── pytest.ini             # Pytest configuration file
+│   └── unittests/
+│       └── core/
+│           └── test_utils.py  # Unit tests for utils.py
+```
+
 ## CLI Scanner
 
-The CLI Scanner is located in the `cli_scanner/src` directory and can be run directly from the command line.
-
-### 📁 Structure
-```bash
-cli_scanner/
-├── src/
-│   ├── cli.py                  # Entry point for the CLI
-│   ├── util.py                 # Utility functions
-│   └── processes_logs_scanner.py  # Main scanning logic
-├── tests/
-│   └── ...                     # Unit tests for the CLI Scanner
-```
+The CLI Scanner is implemented in the `/src/services/` directory. While it can be executed directly with Python, it's **recommended to install the Python package first** for easier use via the command line.
 
 ### 🚀 How to Run
-The script accepts two optional flags:
 
-- `-d` for the directory to scan
-- `-t` for the time period to scan (e.g., 24h, 7d, etc.)
+The script accepts several optional flags:
+
+- `--proc` — Scan running processes
+- `--gpu` — Check GPU usage for anomalies
+- `--cpu` — Check CPU usage for anomalies
+- `--logs` — Scan system logs
+- `--url [URL]` — Analyze a specific URL
+- `--js [FILE]` — Scan a JavaScript file
+- `--time [DURATION]` for the time period to scan (e.g., 24h, 7d, 1m, etc.)
+
+Here is an example how the scanner can be run.
 
 ```bash
-# Basic usage (outputs to results.txt)
-python3 src/cli.py results.txt
-
-# Scan a specific directory for a specific time window
-python3 src/cli.py results.txt -d /home/user -t 24h
+cli-scanner scan --proc --cpu --gpu --logs
+  --url https://example.com --js example.js --time 7d
 ```
 
-### 🧪 How to run tests
+## Daemon Tool
 
-## Demon Tool
+The Daemon tool is implemented in the `/src/services/` directory and is responsible for **periodic background scanning**. Just like the CLI scanner, it’s best to install the package first for convenient usage from the command line.
 
-*(To be implemented)*
+### 🚀 How to Run
+
+Daemon mode by default enables background execution of process monitoring, logging, and CPU/GPU scanning. It also supports two additional arguments for configuring periodic execution, along with an option for network scanning.
+
+- `--network [IFACE|IP]` — Inspect network activity
+- `--duration [SECONDS]` — Total runtime duration of the daemon (default: 300 seconds)
+- `--int [SECONDS]` — Interval between scans (default: 30 seconds)
+
+Here is an example how the scanner can be run. This command runs the scanner in the background for 10 minutes, scanning every 60 seconds.
+
+```bash
+cli-scanner daemon --network 127.0.0.1 --duration 600 --int 60
+```
 
 ## Browser Extension
 
 *(To be implemented)*
+
+## 🧪 How to run tests
