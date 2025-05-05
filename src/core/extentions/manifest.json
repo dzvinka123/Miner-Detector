@@ -1,0 +1,11 @@
+{
+    "manifest_version": 3,
+    "name": "Monero Miner Detector",
+    "version": "1.0",
+    "description": "Scans web pages using Monero mining scripts.",
+    "permissions": ["activeTab", "scripting"],
+    "action": {
+      "default_popup": "popup.html"
+    }
+  }
+  
