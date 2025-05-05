@@ -17,6 +17,8 @@ This project is divided into the following parts:
 - **Browser Extension**  
   Detects JavaScript-based miners in web pages.
 
+![Project Architecture](img/architecture.png)
+
 ---
 
 ## ⚙️ Pre-commit Hook Setup
@@ -102,6 +104,9 @@ Miner-Detector/
 │   │   ├── processes_logs_scanner.py  # Scans logs and running processes
 │   │   └── utils.py           # Helper and utility functions
 │   ├── extensions/
+│   │   ├── manifest.json      # Extension metadata and permissions
+│   │   ├── popup.html         # UI for the browser extension popup
+│   │   └── popup.js           # JS logic for user interactions in the popup
 │   ├── main.py                # Main entry point
 │   └── services/
 │       ├── cli.py             # CLI scanner
@@ -159,7 +164,13 @@ cli-scanner daemon --network 127.0.0.1 --duration 600 --int 60
 
 ## Browser Extension
 
-*(To be implemented)*
+The browser extension is located in the `/src/extensions` directory and appears as a popup in your browser. To use it, manually load the contents of this directory into your preferred browser (e.g., Firefox or Chrome). Once installed, the extension enables you to scan suspicious URLs and JavaScript files.
+
+### 📥 Installation Guides
+
+- Firefox: [How to submit and add an extension](https://extensionworkshop.com/documentation/publish/submitting-an-add-on/)
+
+- Chrome: [How to add an unpacked extension](https://support.google.com/chromebook/answer/2588006?hl=en)
 
 ## 🧪 How to run tests
 
