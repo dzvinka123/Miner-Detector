@@ -57,9 +57,11 @@ def scan_url(url: str, report_buffer) -> None:
                 )
 
         if suspicious_links:
+            print("Warning: Suspicious found!")
             for link in suspicious_links:
                 report_buffer.write(link)
         else:
+            print("No suspicious IP-based links found.")
             report_buffer.write("No suspicious IP-based links found.\n")
 
     except Exception as e:

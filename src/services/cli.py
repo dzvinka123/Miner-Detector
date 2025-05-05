@@ -54,12 +54,6 @@ def scan(
     """
     report_buffer = StringIO()
 
-    if os.geteuid() != 0:
-        print(
-            "System wide logs '/var/log/system.log' for MacOS and '/var/log/syslog' for Linux could not be analyzed as current user is not root. Please re-run the script as root using 'sudo'."
-        )
-        sys.exit(1)
-
     if proc:
         processes_scan(report_buffer)
 
@@ -79,8 +73,12 @@ def scan(
     if url:
         scan_url(url, report_buffer)
 
+    if devmode:
+        scan_url(devmode, report_buffer)
+    
     if js:
         scan_js(js, report_buffer)
+
 
     if platform == "darwin":
         LOG_FILES.extend(
@@ -105,7 +103,12 @@ def scan(
         )
 
     if logs:
-        logs_scan(LOG_FILES, report_buffer, time=time)
+        if os.geteuid() != 0:
+            print(
+                "System wide logs '/var/log/system.log' for MacOS and '/var/log/syslog' for Linux could not be analyzed as current user is not root. Please re-run the script as root using 'sudo'."
+            )
+        else:
+            logs_scan(LOG_FILES, report_buffer, time=time)
 
     if dir:
         if os.path.isdir(dir):
@@ -117,8 +120,6 @@ def scan(
     print("Scan complete.")
     print(f"Results are shown here: http://127.0.0.1:5555/")
 
-    if devmode:
-        return report_buffer
 
     report_text = report_buffer.getvalue()
     send_report_to_server(report_text)

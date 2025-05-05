@@ -1,10 +1,15 @@
 import subprocess
+from urllib import response
 from flask import Flask, jsonify, request, redirect, url_for, render_template_string
 from datetime import datetime
 import os
 from dotenv import load_dotenv
 
+from flask_cors import CORS
+
 app = Flask(__name__)
+CORS(app)
+
 reports = []
 load_dotenv()
 
@@ -90,21 +95,34 @@ def clear() -> str:
     return redirect(url_for("index"))
 
 
-@app.route("/extension/scan", methods=["POST"])
+@app.route("/extention/scan", methods=["POST", "OPTIONS"])
 def scan():
+    if request.method == "OPTIONS":
+        response = jsonify({"message": "Preflight check OK"})
+        response.headers.add("Access-Control-Allow-Origin", "*")
+        response.headers.add("Access-Control-Allow-Methods", "POST, OPTIONS")
+        response.headers.add("Access-Control-Allow-Headers", "Content-Type")
+        return response
+
     data = request.get_json()
     url = data.get("url")
     if not url:
         return jsonify({"message": "URL not provided"}), 400
 
     result = subprocess.run(
-        ["python3", "cli-scanner scan --_dev_mode ", url],
+        ["cli-scanner", "scan", "--_dev_mode", url],
         capture_output=True,
         text=True,
     )
 
-    return jsonify({"message": "Scan started", "output": result.stdout})
-
+    response = jsonify({
+        "message": "Scan started",
+        "stdout": result.stdout,
+        "stderr": result.stderr,
+        "returncode": result.returncode
+    })
+    response.headers.add("Access-Control-Allow-Origin", "*")
+    return response
 
 if __name__ == "main":
     app.run(host="localhost", port=5555, debug=True)
