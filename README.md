@@ -127,6 +127,7 @@ The script accepts several optional flags:
 - `--gpu` — Check GPU usage for anomalies
 - `--cpu` — Check CPU usage for anomalies
 - `--logs` — Scan system logs
+- `--dir` — Scan some particular directory
 - `--url [URL]` — Analyze a specific URL
 - `--js [FILE]` — Scan a JavaScript file
 - `--time [DURATION]` for the time period to scan (e.g., 24h, 7d, 1m, etc.)
