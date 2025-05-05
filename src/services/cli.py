@@ -26,7 +26,7 @@ def scan(
     network=None,
     js=None,
     url=None,
-    time=None,
+    time="24h",
 ):
     """
     Starts execution, contain main logic of program.

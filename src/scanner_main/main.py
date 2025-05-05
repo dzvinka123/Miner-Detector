@@ -64,7 +64,7 @@ def main():
             proc=args.proc,
             gpu=args.gpu,
             cpu=args.cpu,
-            log=args.logs,
+            logs=args.logs,
             url=args.url,
             js=args.js,
             time=args.time,

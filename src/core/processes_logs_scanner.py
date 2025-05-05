@@ -9,7 +9,7 @@ import subprocess
 from sys import platform
 from os import access, R_OK
 from dotenv import load_dotenv
-from util import parse_time_threshold
+from core.util import parse_time_threshold
 
 load_dotenv()
 
@@ -153,7 +153,7 @@ def discover_active_hosts(network):
     return active_hosts
 
 
-def scan_hosts_for_miner_ports(hosts):
+def scan_hosts_for_miner_ports(hosts, report_buffer):
     """
     Function to scan each host for mining-related ports
     """
@@ -168,24 +168,26 @@ def scan_hosts_for_miner_ports(hosts):
                 ports = port_scanner[host][protocol]
                 for port in sorted(ports.keys()):
                     service_name = ports[port].get("name", "unknown")
-                    print(
-                        f"{host} has port {port}/{protocol} OPEN — Potential mining activity (Service: {service_name})"
-                    )
+                    report_buffer.write(f"[!] {host} has port {port}/{protocol} OPEN — Potential mining activity (Service: {service_name})\n")
         else:
-            print(f"{host} has no potential mining activity.")
+            report_buffer.write(f"[!] {host} has no potential mining activity.")
 
 
-def scan_url(url, report_buffer):  # to test
+def scan_url(url, report_buffer):
     print("Scanning URL...")
     response = requests.get(url, timeout=10)
     content = response.text.lower()
 
     if is_suspicious(url):
         report_buffer.write(f"[!] URL {url} name is suspicious.\n")
+    else:
+        report_buffer.write(f"[!] URL {url} name is NOT suspicious and is safe for visiting.\n")
 
     if is_suspicious(content):
         # highlight all sus entries
-        report_buffer.write(f"[!] URL {url} is suspicious.\n")
+        report_buffer.write(f"[!] URL {url} content is suspicious.\n")
+    else:
+        report_buffer.write(f"[!] URL {url} content is NOT suspicious.\n")
 
 
 def scan_js(js_file, report_buffer):
@@ -195,9 +197,13 @@ def scan_js(js_file, report_buffer):
 
         if is_suspicious(js_file):
             report_buffer.write(f"[!] JS file name {js_file} is suspicious.\n")
+        else:
+            report_buffer.write(f"[!] JS file name {js_file} is NOT suspicious.\n")
 
         if is_suspicious(content):
             report_buffer.write(f"[!] JS content of file {js_file} is suspicious.\n")
+        else:
+            report_buffer.write(f"[!] JS content of file {js_file} is NOT suspicious.\n")
 
     else:
         print(f"Opening {js_file} for reading failed.")

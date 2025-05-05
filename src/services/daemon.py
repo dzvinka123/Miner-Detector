@@ -68,5 +68,4 @@ class ScannerDaemon:
         while time.time() - start_time < duration:
             scan(proc=True, gpu=True, cpu=True, logs=True, network=self.network)
             time.sleep(interval)
-        print("Daemon finished running.")
         self.delpid()
