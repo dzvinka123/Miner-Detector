@@ -95,6 +95,7 @@ Miner-Detector/
 ├── README.md
 ├── requirements.txt           # List of dependencies
 ├── start_server.sh            # Shell script to start the server
+├── pytest.ini                 # Pytest configuration file
 
 ├── src/
 │   ├── core/
@@ -109,7 +110,6 @@ Miner-Detector/
 │           └── server.py      # Flask server implementation
 
 ├── tests/
-│   ├── pytest.ini             # Pytest configuration file
 │   └── unittests/
 │       └── core/
 │           └── test_utils.py  # Unit tests for utils.py
@@ -162,3 +162,10 @@ cli-scanner daemon --network 127.0.0.1 --duration 600 --int 60
 *(To be implemented)*
 
 ## 🧪 How to run tests
+
+Unit tests are located in the tests directory and primarily cover functions from utils.py.
+To execute the tests, simply run:
+
+```bash
+pytest
+```
