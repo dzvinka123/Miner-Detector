@@ -1,4 +1,5 @@
-from flask import Flask, request, redirect, url_for, render_template_string
+import subprocess
+from flask import Flask, jsonify, request, redirect, url_for, render_template_string
 from datetime import datetime
 import os
 from dotenv import load_dotenv
@@ -87,6 +88,19 @@ def clear() -> str:
     """
     reports.clear()
     return redirect(url_for("index"))
+
+
+
+@app.route("/extension/scan", methods=["POST"])
+def scan():
+    data = request.get_json()
+    url = data.get("url")
+    if not url:
+        return jsonify({"message": "URL not provided"}), 400
+
+    result = subprocess.run(["python3", "cli-scanner scan --_dev_mode ", url], capture_output=True, text=True)
+
+    return jsonify({"message": "Scan started", "output": result.stdout})
 
 
 if __name__ == "main":

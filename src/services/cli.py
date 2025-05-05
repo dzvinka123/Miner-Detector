@@ -32,6 +32,7 @@ def scan(
     network: str = None,
     js: str = None,
     url: str = None,
+    devmode: str = None,
     time: str = "24h",
 ) -> None:
     """
@@ -116,6 +117,9 @@ def scan(
     print("Scan complete.")
     print(f"Results are shown here: http://127.0.0.1:5555/")
 
+    if devmode:
+        return report_buffer
+    
     report_text = report_buffer.getvalue()
     send_report_to_server(report_text)
     report_buffer.close()
