@@ -37,7 +37,11 @@ def parse_args() -> argparse.Namespace:
     )
     scan_parser.add_argument("--url", metavar="URL", help="Scan a specific URL")
     scan_parser.add_argument("--js", metavar="JS_FILE", help="Scan a JavaScript file")
-    scan_parser.add_argument("--_dev_mode", metavar="URL_EXTENTION", help="Scan a specific URL from Extention")
+    scan_parser.add_argument(
+        "--_dev_mode",
+        metavar="URL_EXTENTION",
+        help="Scan a specific URL from Extention",
+    )
     scan_parser.add_argument(
         "--time",
         help="How long ago something has been done (e.g., 24h, 7d).",
@@ -87,7 +91,7 @@ def main() -> None:
             devmode=args._dev_mode,
             time=args.time,
         )
-        
+
     elif args.mode == "daemon":
         daemon = ScannerDaemon(
             duration=args.duration, interval=args.interval, network=args.network

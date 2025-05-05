@@ -90,7 +90,6 @@ def clear() -> str:
     return redirect(url_for("index"))
 
 
-
 @app.route("/extension/scan", methods=["POST"])
 def scan():
     data = request.get_json()
@@ -98,7 +97,11 @@ def scan():
     if not url:
         return jsonify({"message": "URL not provided"}), 400
 
-    result = subprocess.run(["python3", "cli-scanner scan --_dev_mode ", url], capture_output=True, text=True)
+    result = subprocess.run(
+        ["python3", "cli-scanner scan --_dev_mode ", url],
+        capture_output=True,
+        text=True,
+    )
 
     return jsonify({"message": "Scan started", "output": result.stdout})
 

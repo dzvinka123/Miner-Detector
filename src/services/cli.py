@@ -119,7 +119,7 @@ def scan(
 
     if devmode:
         return report_buffer
-    
+
     report_text = report_buffer.getvalue()
     send_report_to_server(report_text)
     report_buffer.close()
